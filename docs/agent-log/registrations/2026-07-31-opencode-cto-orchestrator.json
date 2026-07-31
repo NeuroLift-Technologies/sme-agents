@@ -1,0 +1,29 @@
+{
+  "agent_registration": {
+    "agent_name": "opencode-cto-orchestrator",
+    "platform": "OpenCode",
+    "version": "big-pickle",
+    "session_id": "sme-agents-flagship-exec-2026-07-31",
+    "entry_date": "2026-07-31T09:50:00Z",
+    "entry_point": "sme-agents flagship plan execution — user started all A2A agents simultaneously (active-threads.md updated first, plan at .omo/plans/sme-agents-flagship-vercel.md)",
+    "acknowledged_otoi": true,
+    "otoi_version": "ORG-DEV-OTOI-1.0.3",
+    "working_repo": "NeuroLift-Technologies/sme-agents",
+    "working_branch": "feat/flagship-vercel",
+    "capabilities_self_reported": [
+      "plan execution coordination",
+      "A2A hub agent distribution (task cards per OTOI delegation format)",
+      "phase gate enforcement (Gates 0/A/B/C/D/E)",
+      "framework API integration design (toi, otoi, asfdk, rrt-advocate, sleepwalker-protocol)",
+      "Next.js/TypeScript web app architecture",
+      "governance compliance (commit format, PR-only workflow, handoffs)"
+    ],
+    "known_limitations": [
+      "npm auth: 401 Unauthorized (cannot publish; Gate B escalation)",
+      "plan mode was sticky during planning — implementation delegated to execution",
+      "poolside-agent repo authorization UNCONFIRMED (Gate 0 item)",
+      "Vercel project creation/deploy requires Joshua sign-off (Gate E)"
+    ],
+    "preferred_handoff_format": "structured JSON handoff record (OTOI Section 5) + appended ledger entries"
+  }
+}

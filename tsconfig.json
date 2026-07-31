@@ -19,5 +19,9 @@
     "agents/**/*.ts",
     "examples/**/*.ts",
     "tests/**/*.ts"
+  ],
+  "exclude": [
+    "apps/web",
+    "node_modules"
   ]
 }
