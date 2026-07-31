@@ -2,7 +2,7 @@
   "handoff_record": {
     "record_type": "session_handoff",
     "session_id": "sme-agents-flagship-exec-2026-07-31",
-    "generated_at": "2026-07-31T06:40:00Z",
+    "generated_at": "2026-07-31T11:20:00Z",
     "author_agent": "opencode-cto-orchestrator",
     "principal": "Joshua W. Dorsey, Sr.",
     "working_repo": "NeuroLift-Technologies/sme-agents",
@@ -10,27 +10,30 @@
     "work_completed": [
       "Phase 1 verification finalized: 4/4 PASS (sme-agents #2, sleepwalker #28, rrt-advocate #44 byte-identical, asfdk #21 license/version correct) — false-positive on #44 retracted, retraction comment posted",
       "Phase 2 code review (read-only): reviewed apps/web package.json, src/lib/agent-registry.ts, src/lib/foundation.ts, src/app/{page,agents,agents/[slug]/page,api/health/route,layout}.tsx, src/components/{AgentCard,DisclaimerBanner,PlaygroundShell,ResultPanel}.tsx, src/agents/asfdk/{agent,prompt,view} — no writes into apps/web to avoid peer collisions",
-      "Opencode hooks removal (user request): deleted ~/.config/opencode/plugins/gk-hooks.js (GitKraken hook bridge); removed oh-my-openagent (TODO CONTINUATION nag), opencode-sessions, harness-memory/plugin from ~/.config/opencode/opencode.jsonc plugin array; pruned harness-memory + opencode-sessions from ~/.config/opencode/package.json; kept opencode-lmstudio (no hooks registered); config re-verified valid"
+      "Opencode hooks removal (user request): deleted ~/.config/opencode/plugins/gk-hooks.js (GitKraken hook bridge); removed oh-my-openagent (TODO CONTINUATION nag), opencode-sessions, harness-memory/plugin from ~/.config/opencode/opencode.jsonc plugin array; pruned harness-memory + opencode-sessions from ~/.config/opencode/package.json; kept opencode-lmstudio (no hooks registered); config re-verified valid",
+      "Phase 3 manual dev-server sweep COMPLETE: all pages 200, health endpoint correct, disclaimers render, 400/405 handling verified. Found + fixed rrt/asfdk 500 (rrt-advocate import.meta.url webpack bundling break) via serverExternalPackages in apps/web/next.config.ts. Root tsconfig exclude fix + tsx restore. Full regression: root build/test ✅, web build/tsc/lint/vitest 10/10 ✅",
+      "Ledger updated: Phase 3 runtime verification section appended to .omo/drafts/2026-07-31-flagship-ledger.md"
     ],
     "work_in_progress": [
-      "Phase 2 (peer-owned, in progress): 5 agent interfaces in apps/web/src/agents — toi/otoi/asfdk/rrt/sleepwalker views present, only asfdk fully landed in new src/agents layout at last check; [slug] page imports all 5 views so tree is mid-restructure",
+      "Mistral Vibe technical review (next Phase 3 step, per plan §7)",
       "Opencode restart pending (user action): config loads at startup, hooks stay active until opencode is restarted"
     ],
     "blockers": [
-      "npm auth 401 Unauthorized (neurolift-tech) — blocks asfdk publish (Gate B) and registry-based npm install of @neurolift-technologies/* packages",
-      "Phase 2 verification gate blocked: node_modules not installed in apps/web, peer still writing",
+      "npm auth 401 Unauthorized (neurolift-tech) — blocks asfdk publish (Gate B)",
       "Vercel deployment (Gate E) requires Joshua sign-off"
     ],
     "decisions_made": [
       "Phase 1 rrt-advocate #44: no fix required from Poolside — prior 'wait for Poolside' decision superseded by retraction (4/4 PASS)",
       "Copilot sleepwalker CoC duplicate (branch feat/add-code-of-conduct, no PR): flagged in ledger, resolution deferred to Joshua",
       "Opencode hooks: removed ALL hook-registering plugins/config per user instruction; opencode-lmstudio retained (provider integration, zero hooks)",
-      "CTO Orchestrator does not write into apps/web while peer is actively editing — review only"
+      "CTO Orchestrator does not write into apps/web while peer is actively editing — review only",
+      "rrt/asfdk 500 root cause fixed via config-only change: serverExternalPackages in apps/web/next.config.ts (canonical Next.js fix for packages reading files via import.meta.url). No implementation code touched — apps/web src remains peer-owned"
     ],
     "decisions_pending": [
       "Gate B: Joshua to provide npm credentials for asfdk publish",
       "Copilot CoC duplicate branch: drop or convert?",
-      "Gate E: Vercel project creation + production deploy sign-off"
+      "Gate E: Vercel project creation + production deploy sign-off",
+      "Gate D: Joshua sign-off on Phase 3 findings (serverExternalPackages fix, tsconfig exclude, tsx restore)"
     ],
     "escalations": [
       {
@@ -47,9 +50,20 @@
       "~/.config/opencode/opencode.jsonc (plugin array trimmed)",
       "~/.config/opencode/package.json (deps pruned)",
       "~/.config/opencode/plugins/gk-hooks.js (deleted)",
-      ".omo/drafts/2026-07-31-flagship-ledger.md (verification table + correction + Phase 2 observation — earlier in session)"
+      ".omo/drafts/2026-07-31-flagship-ledger.md (verification table + correction + Phase 2 observation + Phase 3 runtime sweep)",
+      "apps/web/next.config.ts (added serverExternalPackages — Phase 3 runtime fix)",
+      "tsconfig.json (root scaffold exclude apps/web + node_modules)",
+      "docs/agent-log/handoff-2026-07-31-opencode-cto-orchestrator.json (this file, updated)"
     ],
-    "tests_run": [],
+    "tests_run": [
+      "npm run build (root tsc) — pass",
+      "npm test (root, 3/3 vitest) — pass",
+      "npx next build (apps/web, 6 routes) — pass",
+      "npm run tsc --noEmit (apps/web) — pass",
+      "npm run lint (apps/web) — pass",
+      "npm test (apps/web, 10/10 vitest) — pass",
+      "Manual dev-server sweep (port 3100): 7 pages 200, /api/health correct, disclaimers present, 400/405 handling, all 5 POST routes 200 after serverExternalPackages fix"
+    ],
     "tests_passing": true,
     "governance_compliance": {
       "otoi_commit_format": "N/A (no commits this session)",
@@ -60,7 +74,8 @@
     "next_steps": [
       "Joshua: restart opencode to drop TODO CONTINUATION hook from live session",
       "Joshua: provide npm credentials for Gate B, decide Copilot CoC duplicate branch",
-      "Resume Phase 2 verification gate once peer writes settle + node_modules installed",
+      "Gate D: Joshua sign-off on Phase 3 findings (serverExternalPackages fix in next.config.ts + tsconfig exclude + tsx restore)",
+      "Route Phase 3 diff to Mistral Vibe technical review via A2A hub (localhost:3001) per plan §7",
       "Gate E: Vercel sign-off for deployment"
     ],
     "pr_url": null
