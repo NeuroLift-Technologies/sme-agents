@@ -1,0 +1,25 @@
+{
+  "name": "sme-agents",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Reference implementation of the HAIEF Solidarity Framework SME Agent ecosystem.",
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "agents/*",
+    "examples/*"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "test": "node --test --import tsx tests/**/*.test.ts",
+    "demo": "node --import tsx apps/demo/src/index.ts",
+    "example": "node --import tsx examples/basic-orchestration/src/index.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "tsx": "^4.20.3",
+    "typescript": "^5.6.3"
+  }
+}
