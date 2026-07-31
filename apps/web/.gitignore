@@ -3,4 +3,6 @@
 .next/
 node_modules/
 .server-logs/
+.servers.json
+src/styles/
 tsconfig.tsbuildinfo
