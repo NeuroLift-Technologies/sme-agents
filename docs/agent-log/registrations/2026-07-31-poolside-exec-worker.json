@@ -1,0 +1,27 @@
+{
+  "agent_registration": {
+    "agent_name": "poolside-exec-worker",
+    "platform": "Poolside",
+    "version": "1.0.0",
+    "session_id": "sme-agents-flagship-exec-2026-07-31",
+    "entry_date": "2026-07-31T10:00:00Z",
+    "entry_point": "sme-agents flagship plan execution — Todo 0 session setup (worker execution role)",
+    "acknowledged_otoi": true,
+    "otoi_version": "ORG-DEV-OTOI-1.0.3",
+    "working_repo": "NeuroLift-Technologies/sme-agents",
+    "working_branch": "feat/flagship-vercel",
+    "capabilities_self_reported": [
+      "TypeScript/Next.js web app implementation",
+      "Package integration (toi, otoi, asfdk, rrt-advocate, sleepwalker-protocol)",
+      "Vercel deployment preparation",
+      "Test suite authoring (vitest)",
+      "PR authoring (CODE_OF_CONDUCT.md, license fixes)"
+    ],
+    "known_limitations": [
+      "npm auth: 401 Unauthorized for neurolift-tech (Gate B escalation)",
+      "poolside-agent repo authorization UNCONFIRMED (Gate 0 item — awaiting Joshua confirmation)",
+      "Vercel deploy requires Joshua sign-off (Gate E)"
+    ],
+    "preferred_handoff_format": "structured JSON handoff record (OTOI Section 5) + appended ledger entries"
+  }
+}
