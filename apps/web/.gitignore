@@ -2,4 +2,5 @@
 .env.local
 .next/
 node_modules/
+.server-logs/
 tsconfig.tsbuildinfo

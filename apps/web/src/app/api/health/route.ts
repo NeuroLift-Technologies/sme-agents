@@ -1,5 +1,3 @@
-import webPackage from '../../../../package.json';
-
 import { listAgents } from '../../../lib/agent-registry';
 
 export async function GET() {
@@ -8,12 +6,12 @@ export async function GET() {
   );
 
   return Response.json({
-    app: webPackage.name,
+    app: 'sme-agents-web',
     frameworks: {
-      next: webPackage.dependencies.next,
-      react: webPackage.dependencies.react,
-      reactDom: webPackage.dependencies['react-dom'],
-      ai: webPackage.dependencies.ai,
+      next: '15.5.22',
+      react: '18.3.1',
+      reactDom: '18.3.1',
+      ai: '5.0.0',
     },
     versions: agentVersions,
   });
