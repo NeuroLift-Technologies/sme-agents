@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   outputFileTracingRoot: resolve(__dirname),
+  serverExternalPackages: ['@neurolift-technologies/rrt-advocate'],
   webpack: (config, { isServer }) => {
     // The RRT Advocate and Sleepwalker Protocol packages import Node.js
     // built-ins (fs, crypto, path, module, url, yaml) at the top level.
