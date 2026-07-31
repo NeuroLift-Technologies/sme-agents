@@ -61,7 +61,10 @@ export class SMEOrchestrator {
       return matchedAgents;
     }
 
-    const isPolicyQuestion = /can\\s+an?\\s+ai\\s+agent.*perform.*action|perform.*action/.test(normalizedQuery);
+    const isPolicyQuestion =
+      normalizedQuery.includes("perform") &&
+      normalizedQuery.includes("action") &&
+      (normalizedQuery.includes("ai agent") || normalizedQuery.includes("agent"));
     if (isPolicyQuestion) {
       return allAgents;
     }
