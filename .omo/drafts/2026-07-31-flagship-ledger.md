@@ -346,6 +346,70 @@ All 4 deterministic checks run from clean state:
 Phase 3 gate: all deterministic correctness checks pass. Code quality, type safety,
 build integrity, test coverage, and lint cleanliness verified.
 
+## Phase 3 Runtime Verification — CTO Orchestrator manual sweep (opencode-cto-orchestrator, 2026-07-31)
+
+Automated gates (build/tsc/test/lint) all pass. This section covers the **manual dev-server
+sweep** of the actual running app (plan §7) plus the runtime bugs it surfaced.
+
+### Environment notes
+- **Port 3000 collision**: `localhost:3000` is owned by a local **Gitea install** ("Installation —
+  Gitea" page). Dev server therefore runs on **port 3100**.
+- **Stray lockfile in `$HOME`**: `/home/joshd/package-lock.json` + `/home/joshd/package.json`
+  make Next.js infer `/home/joshd` as workspace root (startup warning). Does not break the app
+  (first-party `outputFileTracingRoot: resolve(__dirname)` in `next.config.ts` overrides it).
+- **Production `.next` collisions with dev**: after `next build` (Gate C), `next dev` against the
+  leftover production `.next` fails intermittently (`routes-manifest.json` ENOENT,
+  `Cannot find module './383.js'`). Requires `rm -rf .next` before starting dev. Not an app bug.
+
+### Sweep results (clean dev run, `npx next dev --port 3100`)
+| Check | Result |
+|-------|--------|
+| `/` home + `/agents` directory | ✅ 200 |
+| 5 agent pages `/agents/{toi,otoi,asfdk,rrt,sleepwalker}` | ✅ 200 |
+| `/api/health` | ✅ 200, all 5 package versions correct |
+| RRT disclaimer on page | ✅ present ("not medical advice") |
+| Sleepwalker disclaimer on page | ✅ present |
+| POST `{input}` → toi | ✅ 200 deterministic (invalid-JSON handling, `modelReply:null` w/o AI key) |
+| POST `{input}` → otoi | ✅ 200 deterministic |
+| POST `{input}` → sleepwalker | ✅ 200 deterministic + disclaimer |
+| POST `{}` missing input | ✅ 400 `{"error":"Request body must include an input string."}` |
+| GET on POST-only route | ✅ 405 |
+| POST `{input}` → rrt | ❌ **500 before fix → ✅ 200 after fix** |
+| POST `{input}` → asfdk | ❌ **500 before fix → ✅ 200 after fix** |
+
+### Critical bug found + fixed: rrt-advocate `import.meta.url` bundling break
+- **Symptom**: `POST /api/agents/rrt` → 500, `TypeError: The "path" argument must be of type
+  string or an instance of URL. Received an instance of URL` at `src/agents/rrt/agent.ts:33`
+  (`new CrisisEngine(userId)`).
+- **asfdk 500 was a pure cascade**: ASFDK coordinator calls `assessRrt()` internally
+  (`src/agents/asfdk/agent.ts:85` via `askAllAgents`). One root cause, two 500s.
+- **Root cause**: `@neurolift-technologies/rrt-advocate@0.1.1` resolves its bundled
+  `crisis_thresholds.yaml` via `fileURLToPath(new URL('../config/…', import.meta.url))`.
+  Next.js webpack **rewrites `import.meta.url`/asset imports** in bundled packages, producing a
+  webpack asset URL that `fileURLToPath` cannot resolve at runtime. Proven: vitest ✅ (node
+  runtime, no bundling), plain Node repro ✅ (`stable`, confidence 0.0675), Next dev ❌.
+- **Fix (config, not implementation)**: added to `apps/web/next.config.ts`:
+  `serverExternalPackages: ['@neurolift-technologies/rrt-advocate']` — the canonical Next.js
+  mechanism that keeps the package as a server-side external (native node resolution, same as
+  vitest). This is a config-file change (within CTO scope); `apps/web` implementation remains
+  peer-owned.
+- **Re-verified after fix**: rrt 200, asfdk 200, all other routes unchanged, `next build` ✅,
+  root `npm run build` ✅, root tests ✅, web `tsc`/`lint`/`vitest` 10/10 ✅.
+- **NOTE FOR PEER (apps/web owner)**: this config fix is required for runtime correctness — the
+  package reads a bundled YAML at `import.meta.url` and cannot survive webpack bundling. If a
+  similar pattern exists in `sleepwalker-protocol` later, apply the same `serverExternalPackages`
+  entry. Watch `@neurolift-technologies/rrt-advocate` in future version bumps.
+
+### Other fixes (this sweep session)
+- **Root `tsconfig.json`** (earlier in session): scaffold globbed `apps/**/*.ts` and
+  double-compiled the Next app under NodeNext. Added `"exclude": ["apps/web", "node_modules"]`.
+- **Root tests unblocked**: `npm test` failed `ERR_MODULE_NOT_FOUND: Cannot find package 'tsx'`
+  → `npm install --include=dev` restored `tsx` → 3/3 pass.
+
+### Phase 3 runtime status: ✅ PASS (with the serverExternalPackages fix)
+Automated gates + manual sweep now all green. Remaining gates: Mistral Vibe technical review
+(§next) and Gate D owner sign-off, then Phase 4 Vercel (Gate E).
+
 ## Phase 4 — Vercel Deployment (ESCALATION REQUIRED)
 
 ### Status: ⏸️ BLOCKED — awaiting owner credentials
