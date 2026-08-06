@@ -1,0 +1,11 @@
+{
+  "name": "sme-agents-home",
+  "private": true,
+  "version": "0.1.0",
+  "description": "SME Agents landing page — seven domain-specialized agents under the HAIEF Solidarity Framework.",
+  "scripts": {
+    "dev": "npx serve .",
+    "start": "npx serve .",
+    "preview": "npx serve ."
+  }
+}
