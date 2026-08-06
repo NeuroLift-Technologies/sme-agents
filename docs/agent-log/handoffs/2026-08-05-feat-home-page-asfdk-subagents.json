@@ -1,0 +1,68 @@
+{
+  "handoff_record": {
+    "session_id": "feat/home-page-asfdk-subagents",
+    "agent_name": "OpenCode-CTO-Orchestrator",
+    "date": "2026-08-05T23:29:09-04:00",
+    "otoi_version": "ORG-DEV-OTOI-1.0.3",
+    "repo": "NeuroLift-Technologies/sme-agents",
+    "branch": "feat/home-page-asfdk-subagents",
+    "work_completed": [
+      "Delivered the seven-agent SME ecosystem: ASFDK parent reframed to solidarity-framework domain with new asfdk-dev and asfdk-deploy sub-agents (agents/asfdk), subAgentIds metadata in packages/agent-core, auto-registration in packages/agent-registry, and whitespace+hyphen tokenizer fix in packages/orchestration.",
+      "Added apps/web playground extensions: 7-agent registry, asfdk-dev/asfdk-deploy views, routes, pages, and components; simplified apps/web/vercel.json to framework defaults.",
+      "Added apps/home static landing page (hero, framework image, 7 agent cards, implementation tabs, architecture, interactive router demo, ticket terminal) with vercel.json and package.json.",
+      "Aligned agent component versions (toi 1.0.1, otoi 1.2.0, rrt 0.1.1, sleepwalker 1.0.2).",
+      "Committed 11 atomic NLT-format commits on feat/home-page-asfdk-subagents and opened PR #8 (mergeable, all checks passing).",
+      "Closed PR #7 (feat/web-app-vercel) as superseded by PR #8 after verifying its entire content exists at HEAD (apps/web byte-identical).",
+      "Removed stale PLAYGROUND_URL placeholders in apps/home/index.html after confirming https://sme-agents.vercel.app is live; fixed og:image to raw.githubusercontent asset URL after discovering the old one 404'd.",
+      "Repaired local git object corruption (5 empty object files, incl. HEAD commit) by deleting empty objects and re-fetching from origin; HEAD verified equal to origin/feat/home-page-asfdk-subagents.",
+      "Registered this session in docs/agent-log/registrations/2026-08-05-opencode-cto-orchestrator.json."
+    ],
+    "work_in_progress": [],
+    "blockers": [],
+    "decisions_made": [
+      "Deliver the seven-agent work as a fresh branch/PR (feat/home-page-asfdk-subagents -> PR #8) rather than rebasing onto PR #7, per user's chosen option.",
+      "Close PR #7 as superseded rather than rebase it: every file in feat/web-app-vercel already exists at HEAD and apps/web is byte-identical between the branches; PR #8 additionally carries the agent sources, packages, tests, and apps/home.",
+      "Keep PLAYGROUND_URL target as https://sme-agents.vercel.app after verifying it serves the live playground (HTTP 200).",
+      "Point og:image at https://raw.githubusercontent.com/NeuroLift-Technologies/sme-agents/main/apps/home/assets/framework.png (resolves post-merge) because the playground domain 404'd for the asset.",
+      "Recover local git corruption by deleting empty object files and re-fetching from origin (remote was authoritative; push had succeeded)."
+    ],
+    "decisions_pending": [
+      "Joshua to review and merge PR #8 (https://github.com/NeuroLift-Technologies/sme-agents/pull/8)."
+    ],
+    "escalations": [],
+    "next_agent_notes": "PR #8 is mergeable with all checks green (Analyze, CodeQL, CodeRabbit, GitGuardian, Vercel). apps/home is a static Vercel site (apps/home/vercel.json) — confirm its own deployment URL when available; the landing page's Playground links point at https://sme-agents.vercel.app (live). Note the org's GitHub-reported 14 dependabot vulnerabilities on main (3 high) surfaced during push — outside this task's scope but worth a follow-up. Local git object store had empty-object corruption on 2026-08-05; verify git fsck stays clean and avoid interrupted writes.",
+    "files_modified": [
+      "agents/asfdk/src/index.ts",
+      "agents/asfdk/src/dev-agent.ts",
+      "agents/asfdk/src/deploy-agent.ts",
+      "agents/toi/**",
+      "agents/otoi/**",
+      "agents/rrt-advocate/**",
+      "agents/sleepwalker/**",
+      "packages/agent-core/src/base-agent.ts",
+      "packages/agent-registry/src/registry.ts",
+      "packages/orchestration/src/tokenizer.ts",
+      "apps/web/src/lib/agent-registry.ts",
+      "apps/web/src/** (routes, pages, components for asfdk-dev/asfdk-deploy)",
+      "apps/web/vercel.json",
+      "apps/home/index.html",
+      "apps/home/vercel.json",
+      "apps/home/package.json",
+      "apps/home/assets/framework.png",
+      "apps/home/assets/constellation.png",
+      ".gitignore",
+      "docs/agent-log/registrations/2026-08-05-opencode-cto-orchestrator.json",
+      "docs/agent-log/handoffs/2026-08-05-feat-home-page-asfdk-subagents.json"
+    ],
+    "tests_run": [
+      "npm test (root) — 6/6 passing",
+      "cd apps/web && npx vitest run src/__tests__/registry.test.ts — 3/3 passing",
+      "cd apps/web && npx tsc --noEmit — clean",
+      "git fsck --full — clean after recovery (only dangling blobs)",
+      "gh pr checks 8 — all pass",
+      "curl https://sme-agents.vercel.app — HTTP 200 (live playground)"
+    ],
+    "tests_passing": true,
+    "pr_url": "https://github.com/NeuroLift-Technologies/sme-agents/pull/8"
+  }
+}
