@@ -5,7 +5,7 @@ export type AgentMode =
   | 'FRAMEWORK_ONLY'
   | 'DEVELOPMENT';
 
-export type AgentSlug = 'toi' | 'otoi' | 'asfdk' | 'rrt' | 'sleepwalker';
+export type AgentSlug = 'toi' | 'otoi' | 'asfdk' | 'asfdk-dev' | 'asfdk-deploy' | 'rrt' | 'sleepwalker';
 
 export interface AgentDefinition {
   slug: AgentSlug;
@@ -17,6 +17,7 @@ export interface AgentDefinition {
   mode: AgentMode;
   summary: string;
   disclaimer?: string;
+  subAgentIds?: string[];
 }
 
 export const agentRegistry: Record<AgentSlug, AgentDefinition> = {
@@ -43,12 +44,36 @@ export const agentRegistry: Record<AgentSlug, AgentDefinition> = {
   asfdk: {
     slug: 'asfdk',
     id: 'asfdk-agent',
-    name: 'ASFDK Coordinator',
+    name: 'ASFDK SME Agent',
+    repo: 'https://github.com/NeuroLift-Technologies/solidarity-framework',
+    package: '',
+    version: '0.1.0',
+    mode: 'UNIFIED',
+    summary:
+      'Covers the Solidarity Framework — components (TOI, OTOI, RRT Advocate, Sleepwalker Protocol), governance, and the two ASFDK pathways (asfdk-dev, asfdk-deploy).',
+    subAgentIds: ['asfdk-dev', 'asfdk-deploy'],
+  },
+  'asfdk-dev': {
+    slug: 'asfdk-dev',
+    id: 'asfdk-dev-agent',
+    name: 'ASFDK Dev SME Agent',
+    repo: 'https://github.com/NeuroLift-Technologies/asfdk',
+    package: '@neurolift-technologies/asfdk',
+    version: '0.2.0',
+    mode: 'DEVELOPMENT',
+    summary:
+      'ASFDK-Dev pathway: build new agents with the Solidarity Layer from day one — governance middleware between model and runtime.',
+  },
+  'asfdk-deploy': {
+    slug: 'asfdk-deploy',
+    id: 'asfdk-deploy-agent',
+    name: 'ASFDK Deploy SME Agent',
     repo: 'https://github.com/NeuroLift-Technologies/asfdk',
     package: '@neurolift-technologies/asfdk',
     version: '0.2.0',
     mode: 'UNIFIED',
-    summary: 'Coordinates all five foundations without merging domain-specific reasoning.',
+    summary:
+      'ASFDK-Deploy pathway: integrate the Solidarity Layer into existing agent wrappers (claws) without rewriting the stack.',
   },
   rrt: {
     slug: 'rrt',
@@ -83,4 +108,8 @@ export function listAgents(): AgentDefinition[] {
 
 export function getAgent(slug: string): AgentDefinition | undefined {
   return agentRegistry[slug as AgentSlug];
+}
+
+export function packageLabel(agent: AgentDefinition): string {
+  return agent.package ? `${agent.package}@${agent.version}` : 'docs-only repo (no npm package)';
 }

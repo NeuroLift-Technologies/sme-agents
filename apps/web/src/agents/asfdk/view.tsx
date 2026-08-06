@@ -4,12 +4,12 @@ import { useState } from 'react';
 
 import { PlaygroundShell } from '../../components/PlaygroundShell';
 import { ResultPanel } from '../../components/ResultPanel';
-import { getAgent } from '../../lib/agent-registry';
+import { getAgent, packageLabel } from '../../lib/agent-registry';
 import { ASFDK_AGENT_PROMPT } from './prompt';
 
 export function AsfdkView() {
   const agent = getAgent('asfdk')!;
-  const [query, setQuery] = useState('How should these five SME agents coordinate a user request about safe AI autonomy?');
+  const [query, setQuery] = useState('How should these five core SME agents coordinate a user request about safe AI autonomy?');
   const [result, setResult] = useState<unknown>(null);
 
   async function run() {
@@ -26,8 +26,8 @@ export function AsfdkView() {
   return (
     <PlaygroundShell
       title={agent.name}
-      summary="Ask all five foundations for a transparent assembly. The coordinator preserves isolation: each response stays attached to its own foundation health snapshot and domain output."
-      packageLabel={`${agent.package}@${agent.version}`}
+      summary="Ask all five core foundations for a transparent assembly. The coordinator preserves isolation: each response stays attached to its own foundation health snapshot and domain output."
+      packageLabel={packageLabel(agent)}
       sourceRepo={agent.repo}
       inputArea={
         <div>
