@@ -9,7 +9,7 @@ const metadata: AgentMetadata = {
   id: "otoi-agent",
   name: "OTOI SME Agent",
   domain: "operational-enforcement",
-  version: "1.0.0",
+  version: "1.2.0",
   description: "Evaluates operational compliance against established terms.",
   capabilities: ["policy-enforcement", "operational-compliance"]
 };

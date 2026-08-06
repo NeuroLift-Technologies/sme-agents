@@ -9,7 +9,7 @@ const metadata: AgentMetadata = {
   id: "rrt-advocate-agent",
   name: "RRT Advocate SME Agent",
   domain: "accountability-advocacy",
-  version: "1.0.0",
+  version: "0.1.1",
   description: "Represents rights, responsibility, and transparency considerations.",
   capabilities: ["accountability-analysis", "transparency-guidance", "escalation-guidance"]
 };

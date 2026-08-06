@@ -9,7 +9,7 @@ const metadata: AgentMetadata = {
   id: "sleepwalker-agent",
   name: "Sleepwalker Protocol SME Agent",
   domain: "autonomous-continuity",
-  version: "1.0.0",
+  version: "1.0.2",
   description: "Explains safe autonomous state handling and continuity concerns.",
   capabilities: ["autonomy-safety", "state-continuity", "background-execution"]
 };
