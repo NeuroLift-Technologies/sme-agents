@@ -1,0 +1,42 @@
+{
+  "name": "sme-agents-web",
+  "version": "0.1.0",
+  "description": "Web playground for the HAIEF Solidarity Framework SME Agent ecosystem",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start --port 3000",
+    "lint": "eslint src/ --ext .ts,.tsx",
+    "test": "vitest run",
+    "tsc": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@ai-sdk/openai-compatible": "^2.0.0",
+    "@neurolift-technologies/asfdk": "^0.2.0",
+    "@neurolift-technologies/otoi": "^1.2.0",
+    "@neurolift-technologies/rrt-advocate": "^0.1.1",
+    "@neurolift-technologies/sleepwalker-protocol": "^1.0.2",
+    "@neurolift-technologies/toi": "^1.0.1",
+    "ai": "^5.0.0-beta.0",
+    "next": "^15.5.18",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "buffer": "^6.0.3",
+    "crypto-browserify": "^3.12.1",
+    "eslint-config-next": "16.2.12",
+    "globals": "^17.8.0",
+    "path-browserify": "^1.0.1",
+    "stream-browserify": "^3.0.0",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.0"
+  }
+}
