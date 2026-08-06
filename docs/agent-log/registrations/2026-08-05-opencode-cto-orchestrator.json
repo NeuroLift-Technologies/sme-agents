@@ -1,0 +1,28 @@
+{
+  "agent_registration": {
+    "agent_name": "opencode-cto-orchestrator",
+    "platform": "OpenCode",
+    "version": "big-pickle",
+    "session_id": "sme-agents-home-page-asfdk-subagents-2026-08-05",
+    "entry_date": "2026-08-05T20:15:00Z",
+    "entry_point": "sme-agents home page (apps/home) from Qwen-generated landing HTML + full-scope ASFDK restructure — user clarified ASFDK model: main agent covers the Solidarity Framework (solidarity-framework repo) with 2 sub-agents asfdk-dev/asfdk-deploy (asfdk repo docs/dev + docs/deploy quickstarts); user approved next steps for repo restructure + landing page",
+    "acknowledged_otoi": true,
+    "otoi_version": "ORG-DEV-OTOI-1.0.3",
+    "working_repo": "NeuroLift-Technologies/sme-agents",
+    "working_branch": "feat/home-page-asfdk-subagents",
+    "capabilities_self_reported": [
+      "full repo survey (agent-core, agent-registry, orchestration, ecosystem, tests, apps/web)",
+      "landing page HTML extraction + validation (/tmp/opencode/sme-agents-home/index.html, 113,746 B)",
+      "local image assets (framework.png + constellation.png, 1024x1024 PNGs)",
+      "delegated repo restructure to swe background agent (agent-core subAgentIds, registry auto-register, asfdk parent + dev/deploy sub-agents, version fixes toi 1.0.1 / otoi 1.2.0 / rrt 0.1.1 / sleepwalker 1.0.2)",
+      "governance compliance (registration, PR-only workflow, commit format)"
+    ],
+    "known_limitations": [
+      "npm auth: 401 Unauthorized (no publish — out of scope)",
+      "Vercel deploy requires Joshua sign-off",
+      "sub-agent double-registration risk in landing page JS — parent subAgents auto-register; do not add showSubAgentToggleDoubleRegistration",
+      "Task 1 (restructure) must land before Task 2 (landing page) to quote new sources"
+    ],
+    "preferred_handoff_format": "structured JSON handoff record (OTOI Section 5)"
+  }
+}
