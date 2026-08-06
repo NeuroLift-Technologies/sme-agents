@@ -6,7 +6,7 @@ export default function NotFoundPage() {
       </p>
       <h1>Unknown SME agent</h1>
       <p style={{ color: '#cbd5e1', lineHeight: 1.7 }}>
-        The requested playground does not exist. Return to the directory to choose one of the five flagship SME agents.
+        The requested playground does not exist. Return to the directory to choose one of the five core SME agents or the two ASFDK sub-agent playgrounds.
       </p>
     </div>
   );

@@ -27,6 +27,7 @@ export interface AgentMetadata {
   description: string;
   capabilities: string[];
   tags?: string[];
+  subAgentIds?: string[];
 }
 
 export interface SMEAgent {
@@ -36,6 +37,7 @@ export interface SMEAgent {
   description: string;
   capabilities: string[];
   metadata: AgentMetadata;
+  readonly subAgents?: SMEAgent[];
   process(request: AgentRequest): Promise<AgentResponse>;
   explainDecision(id: string): Promise<DecisionExplanation>;
 }
@@ -47,16 +49,18 @@ export abstract class BaseSMEAgent implements SMEAgent {
   public readonly description: string;
   public readonly capabilities: string[];
   public readonly metadata: AgentMetadata;
+  public readonly subAgents: SMEAgent[];
 
   private readonly decisions = new Map<string, DecisionExplanation>();
 
-  protected constructor(metadata: AgentMetadata) {
+  protected constructor(metadata: AgentMetadata, subAgents: SMEAgent[] = []) {
     this.metadata = metadata;
     this.id = metadata.id;
     this.name = metadata.name;
     this.domain = metadata.domain;
     this.description = metadata.description;
     this.capabilities = metadata.capabilities;
+    this.subAgents = subAgents;
   }
 
   public abstract process(request: AgentRequest): Promise<AgentResponse>;

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-import type { AgentDefinition } from '../lib/agent-registry';
+import { packageLabel, type AgentDefinition } from '../lib/agent-registry';
 
 export function AgentCard({ agent }: { agent: AgentDefinition }) {
   return (
@@ -36,7 +36,7 @@ export function AgentCard({ agent }: { agent: AgentDefinition }) {
         </span>
       </div>
       <p style={{ marginBottom: 0, marginTop: '0.9rem', color: agent.disclaimer ? '#fca5a5' : '#94a3b8' }}>
-        {agent.disclaimer ?? `${agent.package}@${agent.version}`}
+        {agent.disclaimer ?? packageLabel(agent)}
       </p>
     </Link>
   );

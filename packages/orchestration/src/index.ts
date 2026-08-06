@@ -49,7 +49,7 @@ export class SMEOrchestrator {
         }
 
         const tokenMatches = term
-          .split(/[-\\s]/g)
+          .split(/[\s-]/g)
           .filter((token) => token.length > 4)
           .some((token) => normalizedQuery.includes(token));
 

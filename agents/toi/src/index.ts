@@ -9,7 +9,7 @@ const metadata: AgentMetadata = {
   id: "toi-agent",
   name: "TOI SME Agent",
   domain: "interaction-contracts",
-  version: "1.0.0",
+  version: "1.0.1",
   description: "Explains and validates terms of interaction boundaries.",
   capabilities: ["toi-validation", "interaction-analysis"]
 };

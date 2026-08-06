@@ -13,10 +13,10 @@ export default function HomePage() {
           Flagship project
         </p>
         <h1 style={{ fontSize: 'clamp(2.6rem, 7vw, 4.8rem)', margin: '0.35rem 0 1rem' }}>
-          Five NeuroLift SME agents, one flagship playground.
+          Five core SME agents plus two ASFDK sub-agents, one flagship playground.
         </h1>
         <p style={{ maxWidth: 760, color: '#cbd5e1', lineHeight: 1.8, fontSize: '1.05rem' }}>
-          Explore deterministic TOI, OTOI, ASFDK, RRT Advocate, and Sleepwalker Protocol interfaces with separate foundations, transparent outputs, and optional AI Gateway augmentation.
+          Explore deterministic TOI, OTOI, ASFDK, RRT Advocate, and Sleepwalker Protocol interfaces with separate foundations, transparent outputs, and optional AI Gateway augmentation. The ASFDK agent covers the Solidarity Framework and delegates to its asfdk-dev and asfdk-deploy sub-agents.
         </p>
         <div style={{ display: 'flex', gap: '0.9rem', flexWrap: 'wrap', marginTop: '1.5rem' }}>
           <Link

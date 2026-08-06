@@ -17,6 +17,8 @@ export function createEcosystem(): SMEOrchestrator {
     new SleepwalkerAgent()
   ];
 
+  // Registering the ASFDKAgent also auto-registers its sub-agents
+  // (asfdk-dev-agent, asfdk-deploy-agent) via the registry.
   for (const agent of agents) {
     registry.register(agent);
   }

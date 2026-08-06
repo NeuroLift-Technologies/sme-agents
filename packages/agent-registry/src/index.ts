@@ -44,6 +44,10 @@ export class AgentRegistry {
       metadata,
       registeredAt: new Date().toISOString()
     });
+
+    for (const subAgent of agent.subAgents ?? []) {
+      this.register(subAgent, subAgent.metadata);
+    }
   }
 
   public discover(): AgentMetadata[] {
