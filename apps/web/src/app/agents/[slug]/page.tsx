@@ -6,6 +6,7 @@ import { AsfdkDeployView } from '../../../agents/asfdk-deploy/view';
 import { OtoiView } from '../../../agents/otoi/view';
 import { RrtView } from '../../../agents/rrt/view';
 import { SleepwalkerView } from '../../../agents/sleepwalker/view';
+import { SdlView } from '../../../agents/sdl/view';
 import { ToiView } from '../../../agents/toi/view';
 import { getAgent } from '../../../lib/agent-registry';
 
@@ -25,6 +26,8 @@ function renderAgentView(slug: string) {
       return <RrtView />;
     case 'sleepwalker':
       return <SleepwalkerView />;
+    case 'sdl':
+      return <SdlView />;
     default:
       return null;
   }

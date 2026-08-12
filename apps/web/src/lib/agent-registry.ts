@@ -5,7 +5,7 @@ export type AgentMode =
   | 'FRAMEWORK_ONLY'
   | 'DEVELOPMENT';
 
-export type AgentSlug = 'toi' | 'otoi' | 'asfdk' | 'asfdk-dev' | 'asfdk-deploy' | 'rrt' | 'sleepwalker';
+export type AgentSlug = 'toi' | 'otoi' | 'asfdk' | 'asfdk-dev' | 'asfdk-deploy' | 'rrt' | 'sleepwalker' | 'sdl';
 
 export interface AgentDefinition {
   slug: AgentSlug;
@@ -96,6 +96,18 @@ export const agentRegistry: Record<AgentSlug, AgentDefinition> = {
     mode: 'CONTINUITY_ONLY',
     summary: 'Prototype continuity and protective-state analysis for session handoff readiness.',
     disclaimer: 'PROTOTYPE / not medical advice. Continuity summaries do not replace professional care.',
+  },
+  sdl: {
+    slug: 'sdl',
+    id: 'sdl-agent',
+    name: 'State Detection Layer SME Agent',
+    repo: 'https://github.com/NeuroLift-Technologies/nlt-sdl',
+    package: '@neurolift-technologies/sdl',
+    version: '1.0.0',
+    mode: 'UNIFIED',
+    summary:
+      'Fail-closed routing net that unifies RRTA crisis detection, Sleepwalker continuity, and the reserved Enabler signal into one schema-valid routing decision.',
+    disclaimer: 'PROTOTYPE — NOT A SAFETY SYSTEM. Not medical advice, not a crisis service, and performs no real-time monitoring.',
   },
 };
 

@@ -3,6 +3,7 @@ import { honorCharter, inspectConflicts, validateCharterInput } from '../../../.
 import { askAllAgents } from '../../../../agents/asfdk/agent';
 import { assessRrt } from '../../../../agents/rrt/agent';
 import { assessSleepwalker } from '../../../../agents/sleepwalker/agent';
+import { assessSdl } from '../../../../agents/sdl/agent';
 import { getAgent } from '../../../../lib/agent-registry';
 
 interface AgentRequestBody {
@@ -14,6 +15,9 @@ interface AgentRequestBody {
   history?: string[];
   state?: Record<string, unknown>;
   previousSummary?: string;
+  version?: string;
+  tone?: string;
+  prior?: Record<string, unknown>;
   userId?: string;
   model?: string;
   gatewayBaseUrl?: string;
@@ -109,6 +113,15 @@ export async function POST(
         previousSummary: body.previousSummary,
       });
       break;
+    case 'sdl':
+      deterministic = await assessSdl({
+        message: body.input,
+        model: body.model,
+        version: body.version,
+        tone: body.tone,
+        prior: body.prior,
+      });
+      break;
     default:
       return Response.json({ error: 'Unsupported agent slug.' }, { status: 400 });
   }
@@ -118,13 +131,16 @@ export async function POST(
       ? String((deterministic as { summary: string }).summary)
       : 'No summary available.';
 
-  const modelReply = await maybeGenerateModelReply(
-    slug,
-    body.input,
-    deterministicSummary,
-    body.model,
-    body.gatewayBaseUrl,
-  );
+  const modelReply =
+    slug === 'sdl'
+      ? null
+      : await maybeGenerateModelReply(
+          slug,
+          body.input,
+          deterministicSummary,
+          body.model,
+          body.gatewayBaseUrl,
+        );
 
   return Response.json({
     agent: slug,

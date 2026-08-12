@@ -1,0 +1,62 @@
+{
+  "handoff_record": {
+    "session_id": "feat/sdl-agent",
+    "agent_name": "OpenCode-CTO-Orchestrator",
+    "date": "2026-08-12T03:40:00Z",
+    "otoi_version": "ORG-DEV-OTOI-1.0.3",
+    "repo": "NeuroLift-Technologies/sme-agents",
+    "branch": "feat/sdl-agent",
+    "work_completed": [
+      "Added the State Detection Layer (SDL) SME agent across the full ecosystem: agents/sdl workspace agent (SdlAgent extends BaseSMEAgent, domain state-detection) and apps/demo ecosystem wiring.",
+      "Added the apps/web SDL playground (apps/web/src/agents/sdl: agent.ts wrapping runVector, prompt.ts, view.tsx with message + model/version/tone/prior host-fact inputs and prototype disclaimer).",
+      "Registered sdl in apps/web/src/lib/agent-registry.ts (UNIFIED mode, @neurolift-technologies/sdl@1.0.0, prototype disclaimer), added the sdl API-route case and [slug] page render, and added @neurolift-technologies/sdl dependency to apps/web/package.json.",
+      "Added apps/web/src/__tests__/sdl.test.ts and updated registry.test.ts to eight slugs; updated README with actual component meanings pulled from each source repo (nlt-toi, nlt-otoi, asfdk, rrt-advocate, sleepwalker, nlt-sdl).",
+      "Verified: root npm run lint (tsc --noEmit) clean, root npm test 6/6, apps/web eslint + tsc clean, apps/web vitest 12/12, Next 16.3.0 Turbopack build compiles all routes.",
+      "Opened PR #12 (https://github.com/NeuroLift-Technologies/sme-agents/pull/12) from feat/sdl-agent with NLT-format commit [OpenCode-CTO-Orchestrator] feat(agents): add State Detection Layer SME agent to the ecosystem.",
+      "Registered this session in docs/agent-log/registrations/2026-08-11-opencode-cto-orchestrator.json and logged intent in docs/agent-log/intent/2026-08-11-sdl-agent-pr.md (remediation — intent should have preceded the build)."
+    ],
+    "work_in_progress": [],
+    "blockers": [],
+    "decisions_made": [
+      "Deliver SDL as a new agent following the sleepwalker/rrt playground pattern rather than importing nlt-sdl source into the repo — consistent with how all other agents consume published @neurolift-technologies/* packages.",
+      "Register sdl in UNIFIED mode because SDL spans both crisis (RRTA) and continuity (Sleepwalker) detection behind one routing decision.",
+      "PR created via gh CLI because the MCP GitHub token returned 403 for pull creation (token lacks the required scope).",
+      "Followed repo PR-body convention (## Summary/## Changes/## Verification/## Handoff) from PR #8/#10 rather than a full agent-contribution template, since this repo has no PULL_REQUEST_TEMPLATE.",
+      "Governance records written retroactively after the user flagged that governance files had not been read/written; documented honestly in the records."
+    ],
+    "decisions_pending": [
+      "Joshua to review and merge PR #12 (https://github.com/NeuroLift-Technologies/sme-agents/pull/12)."
+    ],
+    "escalations": [],
+    "next_agent_notes": "PR #12 introduces SDL which is safety-critical: the playground surfaces a prototype disclaimer and must not be treated as a safety system. This repo has no .nltotoi/ scaffold or docs/active-threads.md, so validate-governance.sh and active-threads updates are N/A here; the agent-log (registrations/intent/handoffs) is the operative governance trail. The nlt-sdl AGENTS.md requires draft PRs for that repo, but sme-agents convention (PR #8/#10) is ready-for-review. Confirm CI checks (Analyze, CodeQL, CodeRabbit, GitGuardian, Vercel) pass on PR #12 before merge. npm audit reports 11 vulnerabilities on main (6 low, 2 moderate, 3 high) — outside this task's scope but worth a follow-up.",
+    "files_modified": [
+      "agents/sdl/package.json",
+      "agents/sdl/src/index.ts",
+      "apps/demo/src/ecosystem.ts",
+      "apps/web/src/agents/sdl/agent.ts",
+      "apps/web/src/agents/sdl/prompt.ts",
+      "apps/web/src/agents/sdl/view.tsx",
+      "apps/web/src/__tests__/sdl.test.ts",
+      "apps/web/src/__tests__/registry.test.ts",
+      "apps/web/src/lib/agent-registry.ts",
+      "apps/web/src/app/api/agents/[slug]/route.ts",
+      "apps/web/src/app/agents/[slug]/page.tsx",
+      "apps/web/package.json",
+      "package-lock.json",
+      "README.md",
+      "docs/agent-log/registrations/2026-08-11-opencode-cto-orchestrator.json",
+      "docs/agent-log/intent/2026-08-11-sdl-agent-pr.md",
+      "docs/agent-log/handoffs/2026-08-11-feat-sdl-agent.json"
+    ],
+    "tests_run": [
+      "npm run lint (root, tsc --noEmit) — clean",
+      "npm test (root, node --test --import tsx) — 6/6 passing",
+      "cd apps/web && npm run lint (eslint) — clean",
+      "cd apps/web && npm run tsc — clean",
+      "cd apps/web && npm test (vitest run) — 12/12 passing",
+      "cd apps/web && npm run build (Next 16.3.0 Turbopack) — compiled, all routes generated"
+    ],
+    "tests_passing": true,
+    "pr_url": "https://github.com/NeuroLift-Technologies/sme-agents/pull/12"
+  }
+}

@@ -5,6 +5,7 @@ import { OTOIAgent } from "../../../agents/otoi/src/index.js";
 import { ASFDKAgent } from "../../../agents/asfdk/src/index.js";
 import { RRTAdvocateAgent } from "../../../agents/rrt-advocate/src/index.js";
 import { SleepwalkerAgent } from "../../../agents/sleepwalker/src/index.js";
+import { SdlAgent } from "../../../agents/sdl/src/index.js";
 
 export function createEcosystem(): SMEOrchestrator {
   const registry = new AgentRegistry();
@@ -14,7 +15,8 @@ export function createEcosystem(): SMEOrchestrator {
     new OTOIAgent(),
     new ASFDKAgent(),
     new RRTAdvocateAgent(),
-    new SleepwalkerAgent()
+    new SleepwalkerAgent(),
+    new SdlAgent()
   ];
 
   // Registering the ASFDKAgent also auto-registers its sub-agents
