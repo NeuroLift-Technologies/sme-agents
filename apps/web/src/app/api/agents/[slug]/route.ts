@@ -131,13 +131,16 @@ export async function POST(
       ? String((deterministic as { summary: string }).summary)
       : 'No summary available.';
 
-  const modelReply = await maybeGenerateModelReply(
-    slug,
-    body.input,
-    deterministicSummary,
-    body.model,
-    body.gatewayBaseUrl,
-  );
+  const modelReply =
+    slug === 'sdl'
+      ? null
+      : await maybeGenerateModelReply(
+          slug,
+          body.input,
+          deterministicSummary,
+          body.model,
+          body.gatewayBaseUrl,
+        );
 
   return Response.json({
     agent: slug,

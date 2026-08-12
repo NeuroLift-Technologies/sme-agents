@@ -1,6 +1,7 @@
 import type { HealthCheckResult } from '@neurolift-technologies/asfdk';
 
 import { assessRrt } from '../rrt/agent';
+import { assessSdl } from '../sdl/agent';
 import { assessSleepwalker } from '../sleepwalker/agent';
 import { getAgent, listAgents, type AgentSlug } from '../../lib/agent-registry';
 import { getAllFoundations } from '../../lib/foundation';
@@ -101,6 +102,17 @@ export async function askAllAgents(query: string): Promise<AsfdkRunResult> {
     foundationHealth: healthMap.sleepwalker,
     summary: sleepwalkerResult.summary,
     data: sleepwalkerResult,
+  });
+
+  const sdlAgent = getAgent('sdl')!;
+  const sdlResult = await assessSdl({ message: query });
+  responses.push({
+    slug: 'sdl',
+    name: sdlAgent.name,
+    foundationMode: sdlAgent.mode,
+    foundationHealth: healthMap.sdl,
+    summary: sdlResult.summary,
+    data: sdlResult,
   });
 
   return {

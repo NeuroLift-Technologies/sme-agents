@@ -1,3 +1,4 @@
+import { runVector } from "@neurolift-technologies/sdl";
 import {
   BaseSMEAgent,
   type AgentMetadata,
@@ -22,18 +23,27 @@ export class SdlAgent extends BaseSMEAgent {
 
   public async process(request: AgentRequest): Promise<AgentResponse> {
     const decisionId = `${this.id}-${request.id}`;
-    const response =
-      "Every observed turn is routed through the fail-closed SDL contract, escalating toward human support rather than guessing.";
+    const detection = await runVector({ message: request.query });
+
+    const response = `SDL routed this turn to "${detection.recommendedMode}" (RRTA tier ${detection.rrta.tier}, sleepwalker vulnerable: ${detection.sleepwalker.vulnerable}) with fail-closed ${detection.meta.failClosed ? "engaged" : "clear"}. ${
+      detection.escalateToHuman ? "Escalates toward human support." : ""
+    }`;
     const rationale =
-      "SDL analysis unifies acute RRTA, deterministic Sleepwalker continuity, and reserved Enabler signals behind one routing decision with response constraints.";
+      "SDL unifies acute RRTA, deterministic Sleepwalker continuity, and reserved Enabler signals behind the DetectionResult contract.";
 
     this.recordExplanation({
       decisionId,
       agentId: this.id,
       summary: rationale,
-      evidence: [request.query, "rrta signals", "sleepwalker continuity", "fail-closed boundary"]
+      evidence: [request.query, detection.recommendedMode, ...detection.responseConstraints]
     });
 
-    return { agentId: this.id, decisionId, response, rationale };
+    return {
+      agentId: this.id,
+      decisionId,
+      response,
+      rationale,
+      recommendations: detection.responseConstraints
+    };
   }
 }

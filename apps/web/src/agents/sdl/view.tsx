@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { PlaygroundShell } from '../../components/PlaygroundShell';
 import { ResultPanel } from '../../components/ResultPanel';
@@ -19,8 +19,10 @@ export function SdlView() {
   const [priorJson, setPriorJson] = useState('');
   const [result, setResult] = useState<unknown>(null);
   const [error, setError] = useState<string | null>(null);
+  const requestId = useRef(0);
 
   async function run() {
+    const current = ++requestId.current;
     try {
       setError(null);
       const prior = priorJson.trim() ? (JSON.parse(priorJson) as Record<string, unknown>) : undefined;
@@ -36,11 +38,23 @@ export function SdlView() {
         }),
       });
 
-      const payload = (await response.json()) as { deterministic: unknown };
-      setResult(payload.deterministic);
+      const payload = (await response.json()) as { deterministic?: unknown; error?: string };
+      if (!response.ok || payload.error) {
+        if (current === requestId.current) {
+          setResult(null);
+          setError(payload.error ?? `Request failed with status ${response.status}.`);
+        }
+        return;
+      }
+
+      if (current === requestId.current) {
+        setResult(payload.deterministic ?? null);
+      }
     } catch (caught) {
-      setResult(null);
-      setError(caught instanceof Error ? caught.message : String(caught));
+      if (current === requestId.current) {
+        setResult(null);
+        setError(caught instanceof Error ? caught.message : String(caught));
+      }
     }
   }
 
@@ -53,36 +67,41 @@ export function SdlView() {
       disclaimer={SDL_PROTOTYPE_DISCLAIMER}
       inputArea={
         <div>
-          <label style={{ display: 'block', marginBottom: 8, fontWeight: 700 }}>Observed turn message</label>
+          <label htmlFor="sdl-message" style={{ display: 'block', marginBottom: 8, fontWeight: 700 }}>Observed turn message</label>
           <textarea
+            id="sdl-message"
             value={message}
             onChange={(event) => setMessage(event.target.value)}
             spellCheck={false}
             style={{ width: '100%', minHeight: 140, borderRadius: 16, padding: '1rem', background: '#05070d', color: '#f8fafc', border: '1px solid rgba(139, 92, 246, 0.22)' }}
           />
-          <label style={{ display: 'block', margin: '1rem 0 0.5rem', fontWeight: 700 }}>Model (optional host fact)</label>
+          <label htmlFor="sdl-model" style={{ display: 'block', margin: '1rem 0 0.5rem', fontWeight: 700 }}>Model (optional host fact)</label>
           <input
+            id="sdl-model"
             value={model}
             onChange={(event) => setModel(event.target.value)}
             spellCheck={false}
             style={{ width: '100%', borderRadius: 16, padding: '0.8rem 1rem', background: '#05070d', color: '#f8fafc', border: '1px solid rgba(139, 92, 246, 0.22)' }}
           />
-          <label style={{ display: 'block', margin: '1rem 0 0.5rem', fontWeight: 700 }}>Version (optional host fact)</label>
+          <label htmlFor="sdl-version" style={{ display: 'block', margin: '1rem 0 0.5rem', fontWeight: 700 }}>Version (optional host fact)</label>
           <input
+            id="sdl-version"
             value={version}
             onChange={(event) => setVersion(event.target.value)}
             spellCheck={false}
             style={{ width: '100%', borderRadius: 16, padding: '0.8rem 1rem', background: '#05070d', color: '#f8fafc', border: '1px solid rgba(139, 92, 246, 0.22)' }}
           />
-          <label style={{ display: 'block', margin: '1rem 0 0.5rem', fontWeight: 700 }}>Tone (optional host fact)</label>
+          <label htmlFor="sdl-tone" style={{ display: 'block', margin: '1rem 0 0.5rem', fontWeight: 700 }}>Tone (optional host fact)</label>
           <input
+            id="sdl-tone"
             value={tone}
             onChange={(event) => setTone(event.target.value)}
             spellCheck={false}
             style={{ width: '100%', borderRadius: 16, padding: '0.8rem 1rem', background: '#05070d', color: '#f8fafc', border: '1px solid rgba(139, 92, 246, 0.22)' }}
           />
-          <label style={{ display: 'block', margin: '1rem 0 0.5rem', fontWeight: 700 }}>Prior host facts (JSON, optional)</label>
+          <label htmlFor="sdl-prior" style={{ display: 'block', margin: '1rem 0 0.5rem', fontWeight: 700 }}>Prior host facts (JSON, optional)</label>
           <textarea
+            id="sdl-prior"
             value={priorJson}
             onChange={(event) => setPriorJson(event.target.value)}
             spellCheck={false}
