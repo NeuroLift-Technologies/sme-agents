@@ -17,6 +17,7 @@
     "@neurolift-technologies/asfdk": "^0.2.0",
     "@neurolift-technologies/otoi": "^1.2.0",
     "@neurolift-technologies/rrt-advocate": "^0.1.1",
+    "@neurolift-technologies/sdl": "^1.0.0",
     "@neurolift-technologies/sleepwalker-protocol": "^1.0.2",
     "@neurolift-technologies/toi": "^1.0.1",
     "ai": "^5.0.0-beta.0",

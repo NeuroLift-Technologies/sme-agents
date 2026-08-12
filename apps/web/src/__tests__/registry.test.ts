@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { getAgent, listAgents } from '../lib/agent-registry';
 
 describe('agent registry', () => {
-  it('resolves all seven agent slugs (five core plus two ASFDK sub-agents)', () => {
+  it('resolves all eight agent slugs (six core plus two ASFDK sub-agents)', () => {
     expect(listAgents().map((agent) => agent.slug)).toEqual([
       'toi',
       'otoi',
@@ -12,6 +12,7 @@ describe('agent registry', () => {
       'asfdk-deploy',
       'rrt',
       'sleepwalker',
+      'sdl',
     ]);
   });
 
