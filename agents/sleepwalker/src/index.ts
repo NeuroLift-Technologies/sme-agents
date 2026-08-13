@@ -1,4 +1,8 @@
 import {
+  StateDetector,
+  type EmotionalState
+} from "@neurolift-technologies/sleepwalker-protocol";
+import {
   BaseSMEAgent,
   type AgentMetadata,
   type AgentRequest,
@@ -14,6 +18,9 @@ const metadata: AgentMetadata = {
   capabilities: ["autonomy-safety", "state-continuity", "background-execution"]
 };
 
+const SLEEPWALKER_PROTOTYPE_DISCLAIMER =
+  "This prototype is not medical advice. It provides continuity and protective-state summaries only and should not be treated as clinical guidance.";
+
 export class SleepwalkerAgent extends BaseSMEAgent {
   public constructor() {
     super(metadata);
@@ -21,16 +28,27 @@ export class SleepwalkerAgent extends BaseSMEAgent {
 
   public async process(request: AgentRequest): Promise<AgentResponse> {
     const decisionId = `${this.id}-${request.id}`;
-    const response = "Autonomous execution must preserve continuity state, guardrails, and safe background behavior.";
-    const rationale = "Sleepwalker protocol analysis focuses on safe autonomy constraints and continuity awareness.";
+    const detector = new StateDetector();
+    const state: EmotionalState = detector.detect(request.query);
+
+    const response = `State detection classified "${state.stateType}" (protective: ${state.protective}, requires check-in: ${state.requiresCheckIn}, confidence ${state.confidence.toFixed(2)}). ${SLEEPWALKER_PROTOTYPE_DISCLAIMER}`;
+    const rationale = "Sleepwalker protocol analysis detects protective psychological states and flags continuity, guardrail, and safe background-execution concerns.";
 
     this.recordExplanation({
       decisionId,
       agentId: this.id,
       summary: rationale,
-      evidence: [request.query, "continuity state", "background execution"]
+      evidence: [request.query, state.stateType, `protective: ${state.protective}`]
     });
 
-    return { agentId: this.id, decisionId, response, rationale };
+    return {
+      agentId: this.id,
+      decisionId,
+      response,
+      rationale,
+      recommendations: state.requiresCheckIn
+        ? ["Pause autonomous execution and offer a human check-in before continuing."]
+        : ["Continue autonomous execution with continuity state preserved."]
+    };
   }
 }
