@@ -8,10 +8,10 @@ export async function GET() {
   return Response.json({
     app: 'sme-agents-web',
     frameworks: {
-      next: '15.5.22',
+      next: '16.3.0',
       react: '18.3.1',
       reactDom: '18.3.1',
-      ai: '5.0.0',
+      ai: '5.0.228',
     },
     versions: agentVersions,
   });
