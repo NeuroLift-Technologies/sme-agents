@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@ai-sdk/openai-compatible": "^2.0.0",
-    "@neurolift-technologies/asfdk": "^0.2.0",
+    "@neurolift-technologies/asfdk": "^0.2.4",
     "@neurolift-technologies/otoi": "^1.2.0",
     "@neurolift-technologies/rrt-advocate": "^0.1.1",
     "@neurolift-technologies/sdl": "^1.0.0",

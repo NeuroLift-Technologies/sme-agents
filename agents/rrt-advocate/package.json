@@ -2,5 +2,8 @@
   "name": "@sme-agents/agent-rrt-advocate",
   "version": "0.1.0",
   "type": "module",
-  "main": "src/index.ts"
+  "main": "src/index.ts",
+  "dependencies": {
+    "@neurolift-technologies/rrt-advocate": "^0.1.1"
+  }
 }

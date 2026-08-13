@@ -1,4 +1,9 @@
 import {
+  createFoundation,
+  FoundationMode,
+  type HealthCheckResult
+} from "@neurolift-technologies/asfdk";
+import {
   BaseSMEAgent,
   type AgentMetadata,
   type AgentRequest,
@@ -11,7 +16,7 @@ const metadata: AgentMetadata = {
   id: "asfdk-agent",
   name: "ASFDK SME Agent",
   domain: "solidarity-framework",
-  version: "0.2.0",
+  version: "0.2.4",
   description: "Explains the Solidarity Framework — its components (TOI, OTOI, RRT Advocate, Sleepwalker Protocol), governance model, and the two ASFDK pathways (asfdk-dev, asfdk-deploy).",
   capabilities: ["framework-guidance", "component-mapping", "governance-guidance"],
   subAgentIds: ["asfdk-dev-agent", "asfdk-deploy-agent"]
@@ -42,17 +47,27 @@ export class ASFDKAgent extends BaseSMEAgent {
       return this.delegate(request, decisionId, "asfdk-dev-agent");
     }
 
-    const response = "The Solidarity Framework governs human-AI collaboration through the TOI, OTOI, ASFDK, RRT Advocate, and Sleepwalker Protocol components; ASFDK implements it as a kit with asfdk-dev (build new agents with the Solidarity Layer) and asfdk-deploy (integrate it into existing wrappers) pathways.";
+    const health = await this.foundationHealth();
+
+    const response = `The Solidarity Framework governs human-AI collaboration through the TOI, OTOI, ASFDK, RRT Advocate, and Sleepwalker Protocol components; ASFDK implements it as a kit with asfdk-dev (build new agents with the Solidarity Layer) and asfdk-deploy (integrate it into existing wrappers) pathways. Foundation health: ${health.healthy ? "healthy" : "degraded"} in UNIFIED mode across ${Object.keys(health.components).length} component(s).`;
     const rationale = "ASFDK is the implementation kit for the Solidarity Framework: component mapping ties each framework component to its governing agent, and governance guidance explains how the ASFDK layer enforces those components between model and runtime.";
 
     this.recordExplanation({
       decisionId,
       agentId: this.id,
       summary: rationale,
-      evidence: [request.query, "component mapping", "governance model"]
+      evidence: [request.query, "component mapping", "governance model", `health: ${health.healthy}`]
     });
 
     return { agentId: this.id, decisionId, response, rationale };
+  }
+
+  private async foundationHealth(): Promise<HealthCheckResult> {
+    const foundation = await createFoundation({
+      userId: "sme-agents-asfdk-agent",
+      mode: FoundationMode.UNIFIED
+    });
+    return foundation.healthCheck();
   }
 
   private async delegate(

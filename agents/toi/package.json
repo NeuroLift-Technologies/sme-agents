@@ -2,5 +2,8 @@
   "name": "@sme-agents/agent-toi",
   "version": "0.1.0",
   "type": "module",
-  "main": "src/index.ts"
+  "main": "src/index.ts",
+  "dependencies": {
+    "@neurolift-technologies/toi": "^1.0.1"
+  }
 }
