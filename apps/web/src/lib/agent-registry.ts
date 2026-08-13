@@ -46,8 +46,8 @@ export const agentRegistry: Record<AgentSlug, AgentDefinition> = {
     id: 'asfdk-agent',
     name: 'ASFDK SME Agent',
     repo: 'https://github.com/NeuroLift-Technologies/solidarity-framework',
-    package: '',
-    version: '0.1.0',
+    package: '@neurolift-technologies/asfdk',
+    version: '0.2.4',
     mode: 'UNIFIED',
     summary:
       'Covers the Solidarity Framework — components (TOI, OTOI, RRT Advocate, Sleepwalker Protocol), governance, and the two ASFDK pathways (asfdk-dev, asfdk-deploy).',
@@ -59,7 +59,7 @@ export const agentRegistry: Record<AgentSlug, AgentDefinition> = {
     name: 'ASFDK Dev SME Agent',
     repo: 'https://github.com/NeuroLift-Technologies/asfdk',
     package: '@neurolift-technologies/asfdk',
-    version: '0.2.0',
+    version: '0.2.4',
     mode: 'DEVELOPMENT',
     summary:
       'ASFDK-Dev pathway: build new agents with the Solidarity Layer from day one — governance middleware between model and runtime.',
@@ -70,7 +70,7 @@ export const agentRegistry: Record<AgentSlug, AgentDefinition> = {
     name: 'ASFDK Deploy SME Agent',
     repo: 'https://github.com/NeuroLift-Technologies/asfdk',
     package: '@neurolift-technologies/asfdk',
-    version: '0.2.0',
+    version: '0.2.4',
     mode: 'UNIFIED',
     summary:
       'ASFDK-Deploy pathway: integrate the Solidarity Layer into existing agent wrappers (claws) without rewriting the stack.',
