@@ -1,4 +1,5 @@
 import { Channel, InteractionType } from '@neurolift-technologies/asfdk';
+import { generateText } from 'ai';
 import { analyzeToi } from '@agents/toi/agent';
 import { honorCharter, inspectConflicts, validateCharterInput } from '@agents/otoi/agent';
 import { askAllAgents } from '@agents/asfdk/agent';
@@ -10,7 +11,7 @@ import { assessSdl } from '@agents/sdl/agent';
 import { getAgent } from '@lib/agent-registry';
 import { getFoundation } from '@lib/foundation';
 
-const DEFAULT_MODEL = process.env.VERCEL_AI_GATEWAY_MODEL ?? 'gpt-4o-mini';
+const DEFAULT_MODEL = process.env.VERCEL_AI_GATEWAY_MODEL ?? 'openai/gpt-4o-mini';
 
 interface AgentRequestBody {
   input: string;
@@ -142,15 +143,15 @@ function interactionTypeForSlug(slug: string): InteractionType {
   }
 }
 
-/** @internal - model reply generator */
+/** @internal - model reply generator using Vercel AI Gateway */
 async function maybeGenerateModelReply(
   systemPrompt: string,
   input: string,
   deterministicSummary: string,
   model: string | undefined,
-  gatewayBaseUrl: string | undefined,
+  _gatewayBaseUrl: string | undefined,
 ) {
-  if (!process.env.AI_GATEWAY_API_KEY || !model) {
+  if (!model) {
     return null;
   }
 
@@ -166,31 +167,15 @@ async function maybeGenerateModelReply(
 [Deterministic analysis: ${deterministicSummary}]`
     : input;
 
-  const response = await fetch(`${gatewayBaseUrl ?? 'https://ai-gateway.vercel.sh/v1'}/chat/completions`, {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      authorization: `Bearer ${process.env.AI_GATEWAY_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userMessage },
-      ],
-    }),
-  });
+  try {
+    const { text } = await generateText({
+      model: model as any,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userMessage }],
+    });
 
-  if (!response.ok) {
-    throw new Error(`AI Gateway request failed with status ${response.status}`);
+    return { model, text };
+  } catch {
+    return null;
   }
-
-  const completion = (await response.json()) as {
-    choices?: Array<{ message?: { content?: string | null } }>;
-  };
-
-  return {
-    model,
-    text: completion.choices?.[0]?.message?.content ?? '',
-  };
 }
