@@ -1,11 +1,11 @@
-import { analyzeToi } from '../../../../agents/toi/agent';
-import { honorCharter, inspectConflicts, validateCharterInput } from '../../../../agents/otoi/agent';
-import { askAllAgents } from '../../../../agents/asfdk/agent';
-import { assessRrt } from '../../../../agents/rrt/agent';
-import { assessSleepwalker } from '../../../../agents/sleepwalker/agent';
-import { assessSdl } from '../../../../agents/sdl/agent';
-import { getAgent } from '../../../../lib/agent-registry';
-import { getFoundation } from '../../../../lib/foundation';
+import { analyzeToi } from '@agents/toi/agent';
+import { honorCharter, inspectConflicts, validateCharterInput } from '@agents/otoi/agent';
+import { askAllAgents } from '@agents/asfdk/agent';
+import { assessRrt } from '@agents/rrt/agent';
+import { assessSleepwalker } from '@agents/sleepwalker/agent';
+import { assessSdl } from '@agents/sdl/agent';
+import { getAgent } from '@lib/agent-registry';
+import { getFoundation } from '@lib/foundation';
 
 interface AgentRequestBody {
   input: string;
