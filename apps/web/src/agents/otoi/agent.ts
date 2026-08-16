@@ -48,6 +48,14 @@ function parseDocuments(inputs: string[]): ToiDocument[] {
 }
 
 export function validateCharterInput(input: string): OtoiRunResult {
+  const trimmed = input.trim();
+  if (!trimmed.startsWith('{') && !trimmed.startsWith('[')) {
+    return {
+      ok: true,
+      summary: 'Paste a JSON OTOI charter to validate it, or use the sample below to get started.',
+    };
+  }
+
   try {
     const charter = parseCharter(input);
     return {

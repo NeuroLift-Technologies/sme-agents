@@ -26,7 +26,12 @@ export function ToiView() {
     try {
       const newHistory = [...messages, userMsg].map(m => m.content);
       const data = await sendAgentMessage('toi', text, newHistory);
-      const replyText = data.modelReply?.text ?? JSON.stringify(data.deterministic, null, 2) ?? 'No reply.';
+      const det = data.deterministic as { summary?: string; ok?: boolean } | undefined;
+      const replyText =
+        data.modelReply?.text ??
+        det?.summary ??
+        JSON.stringify(data.deterministic, null, 2) ??
+        'No reply.';
       setMessages(prev => [...prev, { role: 'assistant', content: replyText }]);
     } catch (e) {
       setMessages(prev => [...prev, { role: 'assistant', content: 'Error connecting to agent.' }]);
