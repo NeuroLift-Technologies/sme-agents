@@ -1,136 +1,66 @@
 'use client';
 
-import { useRef, useState } from 'react';
-
+import React, { useState } from 'react';
 import { PlaygroundShell } from '../../components/PlaygroundShell';
-import { ResultPanel } from '../../components/ResultPanel';
+import { ChatThread, Message } from '../../components/ChatThread';
+import { ChatInput } from '../../components/ChatInput';
+import { DisclaimerBanner } from '../../components/DisclaimerBanner';
 import { getAgent } from '../../lib/agent-registry';
 import { SDL_AGENT_PROMPT } from './prompt';
 
-const SDL_PROTOTYPE_DISCLAIMER =
-  'PROTOTYPE — NOT A SAFETY SYSTEM. Not medical advice, not a crisis service, and performs no real-time monitoring. For emergencies, call or text 988 (US) or contact local emergency services.';
-
 export function SdlView() {
   const agent = getAgent('sdl')!;
-  const [message, setMessage] = useState('I feel really overwhelmed and not sure how safe I feel right now.');
-  const [model, setModel] = useState('');
-  const [version, setVersion] = useState('');
-  const [tone, setTone] = useState('');
-  const [priorJson, setPriorJson] = useState('');
-  const [result, setResult] = useState<unknown>(null);
-  const [error, setError] = useState<string | null>(null);
-  const requestId = useRef(0);
+  const [messages, setMessages] = useState<Message[]>([
+    { 
+      role: 'assistant', 
+      content: 'I am the State Detection Layer Skill. I\'m ready to analyze system states.' 
+    }
+  ]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  async function run() {
-    const current = ++requestId.current;
+  async function handleSend(text: string) {
+    const userMsg: Message = { role: 'user', content: text };
+    setMessages(prev => [...prev, userMsg]);
+    setIsLoading(true);
+
     try {
-      setError(null);
-      const prior = priorJson.trim() ? (JSON.parse(priorJson) as Record<string, unknown>) : undefined;
       const response = await fetch('/api/agents/sdl', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({
-          input: message,
-          model: model.trim() || undefined,
-          version: version.trim() || undefined,
-          tone: tone.trim() || undefined,
-          prior,
+        body: JSON.stringify({ 
+          input: text,
+          history: messages 
         }),
       });
 
-      const payload = (await response.json()) as { deterministic?: unknown; error?: string };
-      if (!response.ok || payload.error) {
-        if (current === requestId.current) {
-          setResult(null);
-          setError(payload.error ?? `Request failed with status ${response.status}.`);
-        }
-        return;
-      }
-
-      if (current === requestId.current) {
-        setResult(payload.deterministic ?? null);
-      }
-    } catch (caught) {
-      if (current === requestId.current) {
-        setResult(null);
-        setError(caught instanceof Error ? caught.message : String(caught));
-      }
+      const data = await response.json();
+      const replyText = data.modelReply?.text || JSON.stringify(data.deterministic, null, 2);
+      
+      setMessages(prev => [...prev, { role: 'assistant', content: replyText }]);
+    } catch (e) {
+      setMessages(prev => [...prev, { role: 'assistant', content: 'Error connecting to agent.' }]);
+    } finally {
+      setIsLoading(false);
     }
   }
 
   return (
     <PlaygroundShell
       title={agent.name}
-      summary="Run the fail-closed State Detection Layer against an observed turn and inspect the routing decision: recommended mode, response constraints, and human escalation."
+      summary={agent.summary || 'Agent playground'}
       packageLabel={`${agent.package}@${agent.version}`}
       sourceRepo={agent.repo}
-      disclaimer={SDL_PROTOTYPE_DISCLAIMER}
       inputArea={
-        <div>
-          <label htmlFor="sdl-message" style={{ display: 'block', marginBottom: 8, fontWeight: 700 }}>Observed turn message</label>
-          <textarea
-            id="sdl-message"
-            value={message}
-            onChange={(event) => setMessage(event.target.value)}
-            spellCheck={false}
-            style={{ width: '100%', minHeight: 140, borderRadius: 16, padding: '1rem', background: '#05070d', color: '#f8fafc', border: '1px solid rgba(139, 92, 246, 0.22)' }}
-          />
-          <label htmlFor="sdl-model" style={{ display: 'block', margin: '1rem 0 0.5rem', fontWeight: 700 }}>Model (optional host fact)</label>
-          <input
-            id="sdl-model"
-            value={model}
-            onChange={(event) => setModel(event.target.value)}
-            spellCheck={false}
-            style={{ width: '100%', borderRadius: 16, padding: '0.8rem 1rem', background: '#05070d', color: '#f8fafc', border: '1px solid rgba(139, 92, 246, 0.22)' }}
-          />
-          <label htmlFor="sdl-version" style={{ display: 'block', margin: '1rem 0 0.5rem', fontWeight: 700 }}>Version (optional host fact)</label>
-          <input
-            id="sdl-version"
-            value={version}
-            onChange={(event) => setVersion(event.target.value)}
-            spellCheck={false}
-            style={{ width: '100%', borderRadius: 16, padding: '0.8rem 1rem', background: '#05070d', color: '#f8fafc', border: '1px solid rgba(139, 92, 246, 0.22)' }}
-          />
-          <label htmlFor="sdl-tone" style={{ display: 'block', margin: '1rem 0 0.5rem', fontWeight: 700 }}>Tone (optional host fact)</label>
-          <input
-            id="sdl-tone"
-            value={tone}
-            onChange={(event) => setTone(event.target.value)}
-            spellCheck={false}
-            style={{ width: '100%', borderRadius: 16, padding: '0.8rem 1rem', background: '#05070d', color: '#f8fafc', border: '1px solid rgba(139, 92, 246, 0.22)' }}
-          />
-          <label htmlFor="sdl-prior" style={{ display: 'block', margin: '1rem 0 0.5rem', fontWeight: 700 }}>Prior host facts (JSON, optional)</label>
-          <textarea
-            id="sdl-prior"
-            value={priorJson}
-            onChange={(event) => setPriorJson(event.target.value)}
-            spellCheck={false}
-            placeholder='{"model": "previous-model", "version": "0.9.0", "tone": "flat"}'
-            style={{ width: '100%', minHeight: 90, borderRadius: 16, padding: '1rem', background: '#05070d', color: '#f8fafc', border: '1px solid rgba(139, 92, 246, 0.22)' }}
-          />
-          <button
-            onClick={run}
-            style={{ marginTop: '1rem', background: '#8b5cf6', color: '#fff', border: 0, borderRadius: 999, padding: '0.8rem 1.1rem', fontWeight: 700, cursor: 'pointer' }}
-          >
-            Run SDL detection
-          </button>
+        <div style={{ display: 'flex', flexDirection: 'column', height: '600px', background: 'white', borderRadius: 16, overflow: 'hidden', border: '1px solid rgba(0,0,0,0.1)' }}>
+          <ChatThread messages={messages} isLoading={isLoading} />
+          <ChatInput onSend={handleSend} isLoading={isLoading} />
         </div>
       }
     >
-      {result || error ? (
-        <ResultPanel
-          summary={
-            typeof result === 'object' && result !== null && 'summary' in result
-              ? String((result as { summary: string }).summary)
-              : 'Unable to run SDL detection.'
-          }
-          error={error}
-          data={result ?? undefined}
-        />
-      ) : null}
+      <DisclaimerBanner>This agent operates under strict governance protocols. Ensure all interactions are logged according to ASFDK standards.</DisclaimerBanner>
       <details style={{ marginTop: '1rem' }}>
-        <summary style={{ cursor: 'pointer', color: '#c4b5fd' }}>System prompt</summary>
-        <pre style={{ whiteSpace: 'pre-wrap', background: '#05070d', padding: '1rem', borderRadius: 12, overflowX: 'auto' }}>{SDL_AGENT_PROMPT}</pre>
+        <summary style={{ cursor: 'pointer', color: '#8b5cf6' }}>Assistant Persona</summary>
+        <pre style={{ whiteSpace: 'pre-wrap', background: '#05070d', padding: '1rem', borderRadius: 12, color: '#f8fafc', fontSize: '0.85rem', marginTop: '0.5rem' }}>{SDL_AGENT_PROMPT}</pre>
       </details>
     </PlaygroundShell>
   );

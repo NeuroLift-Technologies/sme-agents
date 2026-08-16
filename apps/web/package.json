@@ -13,6 +13,7 @@
     "tsc": "tsc --noEmit"
   },
   "dependencies": {
+    "@a2a-js/sdk": "^1.0.1",
     "@ai-sdk/openai-compatible": "^2.0.0",
     "@neurolift-technologies/asfdk": "^0.2.4",
     "@neurolift-technologies/otoi": "^1.2.0",

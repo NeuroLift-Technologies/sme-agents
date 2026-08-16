@@ -4,7 +4,8 @@ import { askAllAgents } from '../../../../agents/asfdk/agent';
 import { assessRrt } from '../../../../agents/rrt/agent';
 import { assessSleepwalker } from '../../../../agents/sleepwalker/agent';
 import { assessSdl } from '../../../../agents/sdl/agent';
-import { getAgent } from '../../../../lib/agent-registry';
+import { getAgent, AgentSlug } from '../../../../lib/agent-registry';
+import { getFoundation } from '../../../../lib/foundation';
 
 interface AgentRequestBody {
   input: string;
@@ -23,52 +24,6 @@ interface AgentRequestBody {
   gatewayBaseUrl?: string;
 }
 
-async function maybeGenerateModelReply(
-  slug: string,
-  input: string,
-  deterministicSummary: string,
-  model: string | undefined,
-  gatewayBaseUrl: string | undefined,
-) {
-  if (!process.env.AI_GATEWAY_API_KEY || !model) {
-    return null;
-  }
-
-  const response = await fetch(`${gatewayBaseUrl ?? 'https://ai-gateway.vercel.sh/v1'}/chat/completions`, {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      authorization: `Bearer ${process.env.AI_GATEWAY_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model,
-      messages: [
-        {
-          role: 'system',
-          content: `You are assisting the ${slug} SME playground. Build on the deterministic result without contradicting it.`,
-        },
-        {
-          role: 'user',
-          content: `Deterministic summary: ${deterministicSummary}\n\nUser input: ${input}`,
-        },
-      ],
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`AI Gateway request failed with status ${response.status}`);
-  }
-
-  const completion = (await response.json()) as {
-    choices?: Array<{ message?: { content?: string | null } }>;
-  };
-
-  return {
-    model,
-    text: completion.choices?.[0]?.message?.content ?? '',
-  };
-}
-
 export async function POST(
   request: Request,
   context: { params: Promise<{ slug: string }> },
@@ -79,10 +34,20 @@ export async function POST(
     return Response.json({ error: 'Unknown agent slug.' }, { status: 404 });
   }
 
+  const slugAgent: AgentSlug = slug as unknown as AgentSlug;
   const body = (await request.json()) as Partial<AgentRequestBody>;
   if (!body.input || typeof body.input !== 'string') {
     return Response.json({ error: 'Request body must include an input string.' }, { status: 400 });
   }
+
+  const foundation = await getFoundation(slugAgent);
+  const govResult = await foundation.processInteraction({
+    timestamp: new Date(),
+    interactionType: 'USER_MESSAGE' as any,
+    data: { text: body.input },
+    userId: body.userId ?? `web-user-${slug}`,
+    channel: 'user_input' as any,
+  });
 
   let deterministic: unknown;
 
@@ -134,17 +99,59 @@ export async function POST(
   const modelReply =
     slug === 'sdl'
       ? null
-      : await maybeGenerateModelReply(
-          slug,
-          body.input,
-          deterministicSummary,
-          body.model,
-          body.gatewayBaseUrl,
-        );
+      : await maybeGenerateModelReply(slug, body.input, deterministicSummary, body.model, body.gatewayBaseUrl);
 
   return Response.json({
     agent: slug,
     deterministic,
+    governance: govResult,
     modelReply,
   });
+}
+
+/** @internal - model reply generator */
+async function maybeGenerateModelReply(
+  slug: string,
+  input: string,
+  deterministicSummary: string,
+  model: string | undefined,
+  gatewayBaseUrl: string | undefined,
+) {
+  if (!process.env.AI_GATEWAY_API_KEY || !model) {
+    return null;
+  }
+
+  const response = await fetch(`${gatewayBaseUrl ?? 'https://ai-gateway.vercel.sh/v1'}/chat/completions`, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      authorization: `Bearer ${process.env.AI_GATEWAY_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model,
+      messages: [
+        {
+          role: 'system',
+          content: `You are assisting the ${slug} SME playground. Build on the deterministic result without contradicting it.`,
+        },
+        {
+          role: 'user',
+          content: `Deterministic summary: ${deterministicSummary}\n\nUser input: ${input}`,
+        },
+      ],
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`AI Gateway request failed with status ${response.status}`);
+  }
+
+  const completion = (await response.json()) as {
+    choices?: Array<{ message?: { content?: string | null } }>;
+  };
+
+  return {
+    model,
+    text: completion.choices?.[0]?.message?.content ?? '',
+  };
 }

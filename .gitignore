@@ -5,3 +5,6 @@ dist/
 
 # Local tool state
 .poolside/
+
+# Local inter-agent message channel (see docs/agent-comms/README.md)
+docs/agent-comms/
