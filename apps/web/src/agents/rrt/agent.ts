@@ -1,4 +1,7 @@
-import { CrisisEngine, CrisisLevel, type CrisisAssessment } from '@neurolift-technologies/rrt-advocate';
+import { rrt } from '@neurolift-technologies/asfdk';
+
+type CrisisAssessment = rrt.CrisisAssessment;
+const { CrisisEngine, CrisisLevel } = rrt;
 
 export { CrisisLevel };
 export type { CrisisAssessment };
@@ -14,7 +17,7 @@ export interface RrtRunResult {
 export const RRT_PROTOTYPE_DISCLAIMER =
   'This prototype is not medical advice and cannot diagnose, treat, or replace emergency support. If someone may be in immediate danger, contact local emergency services or 988.';
 
-function actionForLevel(level: CrisisLevel): string {
+function actionForLevel(level: rrt.CrisisLevel): string {
   switch (level) {
     case CrisisLevel.BLACK:
       return 'Escalate to immediate human intervention now.';

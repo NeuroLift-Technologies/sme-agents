@@ -1,11 +1,16 @@
+import { Channel, InteractionType } from '@neurolift-technologies/asfdk';
 import { analyzeToi } from '@agents/toi/agent';
 import { honorCharter, inspectConflicts, validateCharterInput } from '@agents/otoi/agent';
 import { askAllAgents } from '@agents/asfdk/agent';
+import { assessAsfdkDev } from '@agents/asfdk-dev/agent';
+import { assessAsfdkDeploy } from '@agents/asfdk-deploy/agent';
 import { assessRrt } from '@agents/rrt/agent';
 import { assessSleepwalker } from '@agents/sleepwalker/agent';
 import { assessSdl } from '@agents/sdl/agent';
 import { getAgent } from '@lib/agent-registry';
 import { getFoundation } from '@lib/foundation';
+
+const DEFAULT_MODEL = process.env.VERCEL_AI_GATEWAY_MODEL ?? 'gpt-4o-mini';
 
 interface AgentRequestBody {
   input: string;
@@ -42,10 +47,10 @@ export async function POST(
   const foundation = await getFoundation(agent.slug);
   const govResult = await foundation.processInteraction({
     timestamp: new Date(),
-    interactionType: 'USER_MESSAGE' as any,
+    interactionType: interactionTypeForSlug(slug),
     data: { text: body.input },
     userId: body.userId ?? `web-user-${slug}`,
-    channel: 'user_input' as any,
+    channel: Channel.USER_INPUT,
   });
 
   let deterministic: unknown;
@@ -65,6 +70,12 @@ export async function POST(
       break;
     case 'asfdk':
       deterministic = await askAllAgents(body.input);
+      break;
+    case 'asfdk-dev':
+      deterministic = await assessAsfdkDev(foundation);
+      break;
+    case 'asfdk-deploy':
+      deterministic = await assessAsfdkDeploy(foundation);
       break;
     case 'rrt':
       deterministic = await assessRrt(body.input, body.userId);
@@ -95,10 +106,13 @@ export async function POST(
       ? String((deterministic as { summary: string }).summary)
       : 'No summary available.';
 
-  const modelReply =
-    slug === 'sdl'
-      ? null
-      : await maybeGenerateModelReply(slug, body.input, deterministicSummary, body.model, body.gatewayBaseUrl);
+  const modelReply = await maybeGenerateModelReply(
+    agent.systemPrompt,
+    body.input,
+    deterministicSummary,
+    body.model ?? DEFAULT_MODEL,
+    body.gatewayBaseUrl,
+  );
 
   return Response.json({
     agent: slug,
@@ -108,9 +122,29 @@ export async function POST(
   });
 }
 
+/** Maps each agent slug to the correct ASFDK InteractionType per the quickstart. */
+function interactionTypeForSlug(slug: string): InteractionType {
+  switch (slug) {
+    case 'toi':
+    case 'otoi':
+      return InteractionType.PREFERENCE_UPDATE;
+    case 'rrt':
+      return InteractionType.CRISIS_ALERT;
+    case 'sleepwalker':
+    case 'sdl':
+      return InteractionType.EMOTIONAL_ASSESSMENT;
+    case 'asfdk-dev':
+    case 'asfdk-deploy':
+      return InteractionType.OPTIMIZATION_REQUEST;
+    case 'asfdk':
+    default:
+      return InteractionType.STATUS_INQUIRY;
+  }
+}
+
 /** @internal - model reply generator */
 async function maybeGenerateModelReply(
-  slug: string,
+  systemPrompt: string,
   input: string,
   deterministicSummary: string,
   model: string | undefined,
@@ -119,6 +153,18 @@ async function maybeGenerateModelReply(
   if (!process.env.AI_GATEWAY_API_KEY || !model) {
     return null;
   }
+
+  const hasRealAnalysis =
+    deterministicSummary !== 'No summary available.' &&
+    !deterministicSummary.startsWith('Paste a JSON') &&
+    !deterministicSummary.startsWith('ASFDK-Dev') &&
+    !deterministicSummary.startsWith('ASFDK-Deploy');
+
+  const userMessage = hasRealAnalysis
+    ? `${input}
+
+[Deterministic analysis: ${deterministicSummary}]`
+    : input;
 
   const response = await fetch(`${gatewayBaseUrl ?? 'https://ai-gateway.vercel.sh/v1'}/chat/completions`, {
     method: 'POST',
@@ -129,14 +175,8 @@ async function maybeGenerateModelReply(
     body: JSON.stringify({
       model,
       messages: [
-        {
-          role: 'system',
-          content: `You are assisting the ${slug} SME playground. Build on the deterministic result without contradicting it.`,
-        },
-        {
-          role: 'user',
-          content: `Deterministic summary: ${deterministicSummary}\n\nUser input: ${input}`,
-        },
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userMessage },
       ],
     }),
   });

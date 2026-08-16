@@ -1,14 +1,10 @@
-import type { SafeParseResult, ToiDocument, ToiTier } from '@neurolift-technologies/toi';
-import {
-  canonicalize,
-  compareTier,
-  isToi,
-  parseToi,
-  resolveToi,
-  safeParseToi,
-  serializeToi,
-  sortByPrecedence,
-} from '@neurolift-technologies/toi';
+import { toi } from '@neurolift-technologies/asfdk';
+
+type SafeParseResult = toi.SafeParseResult;
+type ToiDocument = toi.ToiDocument;
+type ToiTier = toi.ToiTier;
+
+const { canonicalize, compareTier, isToi, parseToi, resolveToi, safeParseToi, serializeToi, sortByPrecedence } = toi;
 
 export { canonicalize, compareTier, isToi, parseToi, resolveToi, safeParseToi, serializeToi };
 export type { SafeParseResult, ToiDocument, ToiTier };
