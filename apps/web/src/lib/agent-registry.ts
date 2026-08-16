@@ -27,7 +27,7 @@ export const agentRegistry: Record<AgentSlug, AgentDefinition> = {
     name: 'TOI SME Agent',
     repo: 'https://github.com/NeuroLift-Technologies/nlt-toi',
     package: '@neurolift-technologies/toi',
-    version: '1.0.1',
+    version: '1.0.3',
     mode: 'FRAMEWORK_ONLY',
     summary: 'Parses, validates, canonicalizes, and resolves Terms of Interaction documents.',
   },
