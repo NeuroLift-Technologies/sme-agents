@@ -1,7 +1,10 @@
 import {
   createFoundation,
+  detectInjectionPatterns,
   FoundationMode,
-  type HealthCheckResult
+  sanitizeInput,
+  type HealthCheckResult,
+  type SanitizationResult
 } from "@neurolift-technologies/asfdk";
 import {
   BaseSMEAgent,
@@ -17,8 +20,8 @@ const metadata: AgentMetadata = {
   name: "ASFDK SME Agent",
   domain: "solidarity-framework",
   version: "0.2.4",
-  description: "Explains the Solidarity Framework — its components (TOI, OTOI, RRT Advocate, Sleepwalker Protocol), governance model, and the two ASFDK pathways (asfdk-dev, asfdk-deploy).",
-  capabilities: ["framework-guidance", "component-mapping", "governance-guidance"],
+  description: "Explains the Solidarity Framework — its components (TOI, OTOI, RRT Advocate, Sleepwalker Protocol), governance model, prompt-injection defense utilities, and the two ASFDK pathways (asfdk-dev, asfdk-deploy).",
+  capabilities: ["framework-guidance", "component-mapping", "governance-guidance", "prompt-defense"],
   subAgentIds: ["asfdk-dev-agent", "asfdk-deploy-agent"]
 };
 
@@ -31,6 +34,9 @@ export class ASFDKAgent extends BaseSMEAgent {
     const decisionId = `${this.id}-${request.id}`;
     const query = request.query.toLowerCase();
 
+    const isDefenseQuery = ["injection", "prompt defense", "sanitize", "sanitization", "prompt security"].some(
+      (token) => query.includes(token)
+    );
     const isDeployQuery = ["deploy", "deployment", "integration", "wrapper", "claw"].some((token) =>
       query.includes(token)
     );
@@ -38,6 +44,10 @@ export class ASFDKAgent extends BaseSMEAgent {
       (query.includes("dev") && !query.includes("deploy")) ||
       query.includes("build") ||
       query.includes("authoring");
+
+    if (isDefenseQuery) {
+      return this.evaluatePromptDefense(request, decisionId);
+    }
 
     if (isDeployQuery) {
       return this.delegate(request, decisionId, "asfdk-deploy-agent");
@@ -60,6 +70,31 @@ export class ASFDKAgent extends BaseSMEAgent {
     });
 
     return { agentId: this.id, decisionId, response, rationale };
+  }
+
+  private evaluatePromptDefense(request: AgentRequest, decisionId: string): AgentResponse {
+    const sanitized: SanitizationResult = sanitizeInput(request.query);
+    const injectionCheck = detectInjectionPatterns(request.query);
+
+    const response = `Prompt defense assessment: input risk level "${sanitized.riskLevel}", clean: ${sanitized.clean}. Injection pattern ${injectionCheck.detected ? `detected (${injectionCheck.pattern})` : "not detected"}.${sanitized.reason ? ` Reason: ${sanitized.reason}.` : ""}`;
+    const rationale = "ASFDK prompt-defense utilities sanitize inputs and detect injection patterns to guard the Solidarity Layer boundary between model and runtime.";
+
+    this.recordExplanation({
+      decisionId,
+      agentId: this.id,
+      summary: rationale,
+      evidence: [request.query, sanitized.riskLevel, `injection detected: ${injectionCheck.detected}`]
+    });
+
+    return {
+      agentId: this.id,
+      decisionId,
+      response,
+      rationale,
+      recommendations: sanitized.clean && !injectionCheck.detected
+        ? ["Input is clean; no injection patterns detected."]
+        : [`Input flagged at risk level "${sanitized.riskLevel}". Do not forward to the model without remediation.`]
+    };
   }
 
   private async foundationHealth(): Promise<HealthCheckResult> {

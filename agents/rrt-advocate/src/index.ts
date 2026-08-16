@@ -13,10 +13,10 @@ import {
 const metadata: AgentMetadata = {
   id: "rrt-advocate-agent",
   name: "RRT Advocate SME Agent",
-  domain: "accountability-advocacy",
+  domain: "crisis-intervention",
   version: "0.1.1",
-  description: "Represents rights, responsibility, and transparency considerations.",
-  capabilities: ["accountability-analysis", "transparency-guidance", "escalation-guidance"]
+  description: "Real-time crisis detection and human-first intervention layer for burnout, overwhelm, and safety escalation.",
+  capabilities: ["crisis-detection", "crisis-level-assessment", "intervention-routing", "escalation-guidance"]
 };
 
 const RRT_PROTOTYPE_DISCLAIMER =
