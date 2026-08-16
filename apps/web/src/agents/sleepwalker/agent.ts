@@ -1,4 +1,7 @@
-import { StateDetector, type EmotionalState } from '@neurolift-technologies/sleepwalker-protocol';
+import { sleepwalker } from '@neurolift-technologies/asfdk';
+
+type EmotionalState = sleepwalker.EmotionalState;
+const { StateDetector } = sleepwalker;
 
 export type { EmotionalState };
 

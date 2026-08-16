@@ -1,16 +1,11 @@
-import type {
-  EffectivePolicy,
-  OtoiCharter,
-  PolicyConflict,
-  ToiDocument,
-} from '@neurolift-technologies/otoi';
-import {
-  detectConflicts,
-  honor,
-  parseCharter,
-  parseToi,
-  propagate,
-} from '@neurolift-technologies/otoi';
+import { otoi } from '@neurolift-technologies/asfdk';
+
+type EffectivePolicy = otoi.EffectivePolicy;
+type OtoiCharter = otoi.OtoiCharter;
+type PolicyConflict = otoi.PolicyConflict;
+type ToiDocument = otoi.ToiDocument;
+
+const { detectConflicts, honor, parseCharter, parseToi, propagate } = otoi;
 
 export { detectConflicts, honor, parseCharter, propagate };
 export type { EffectivePolicy, OtoiCharter, PolicyConflict, ToiDocument };
