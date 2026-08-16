@@ -1,61 +1,57 @@
 'use client';
 
-import { useState } from 'react';
-
+import React, { useState } from 'react';
 import { PlaygroundShell } from '../../components/PlaygroundShell';
-import { ResultPanel } from '../../components/ResultPanel';
-import { getAgent, packageLabel } from '../../lib/agent-registry';
+import { ChatThread, Message } from '../../components/ChatThread';
+import { ChatInput } from '../../components/ChatInput';
+import { DisclaimerBanner } from '../../components/DisclaimerBanner';
+import { getAgent } from '../../lib/agent-registry';
+import { sendAgentMessage } from '../../lib/send-agent-message';
 import { ASFDK_AGENT_PROMPT } from './prompt';
 
 export function AsfdkView() {
   const agent = getAgent('asfdk')!;
-  const [query, setQuery] = useState('How should these five core SME agents coordinate a user request about safe AI autonomy?');
-  const [result, setResult] = useState<unknown>(null);
+  const [messages, setMessages] = useState<Message[]>([
+    { 
+      role: 'assistant', 
+      content: 'I am the Solidarity Foundation coordinator. Ask me about the ASFDK governance framework.' 
+    }
+  ]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  async function run() {
-    const response = await fetch('/api/agents/asfdk', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ input: query }),
-    });
+  async function handleSend(text: string) {
+    const userMsg: Message = { role: 'user', content: text };
+    setMessages(prev => [...prev, userMsg]);
+    setIsLoading(true);
 
-    const payload = (await response.json()) as { deterministic: unknown };
-    setResult(payload.deterministic);
+    try {
+      const newHistory = [...messages, userMsg].map(m => m.content);
+      const data = await sendAgentMessage('asfdk', text, newHistory);
+      const replyText = data.modelReply?.text ?? JSON.stringify(data.deterministic, null, 2) ?? 'No reply.';
+      setMessages(prev => [...prev, { role: 'assistant', content: replyText }]);
+    } catch (e) {
+      setMessages(prev => [...prev, { role: 'assistant', content: 'Error connecting to agent.' }]);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
     <PlaygroundShell
       title={agent.name}
-      summary="Ask all five core foundations for a transparent assembly. The coordinator preserves isolation: each response stays attached to its own foundation health snapshot and domain output."
-      packageLabel={packageLabel(agent)}
+      summary={agent.summary || 'Agent playground'}
+      packageLabel={`${agent.package}@${agent.version}`}
       sourceRepo={agent.repo}
       inputArea={
-        <div>
-          <label style={{ display: 'block', marginBottom: 8, fontWeight: 700 }}>Ask all agents</label>
-          <textarea
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            spellCheck={false}
-            style={{ width: '100%', minHeight: 180, borderRadius: 16, padding: '1rem', background: '#05070d', color: '#f8fafc', border: '1px solid rgba(139, 92, 246, 0.22)' }}
-          />
-          <button
-            onClick={run}
-            style={{ marginTop: '1rem', background: '#8b5cf6', color: '#fff', border: 0, borderRadius: 999, padding: '0.8rem 1.1rem', fontWeight: 700, cursor: 'pointer' }}
-          >
-            Coordinate foundations
-          </button>
+        <div style={{ display: 'flex', flexDirection: 'column', height: '600px', background: 'white', borderRadius: 16, overflow: 'hidden', border: '1px solid rgba(0,0,0,0.1)' }}>
+          <ChatThread messages={messages} isLoading={isLoading} />
+          <ChatInput onSend={handleSend} isLoading={isLoading} />
         </div>
       }
     >
-      {result ? (
-        <ResultPanel
-          summary={typeof result === 'object' && result !== null && 'summary' in result ? String((result as { summary: string }).summary) : 'ASFDK response ready.'}
-          data={result}
-        />
-      ) : null}
       <details style={{ marginTop: '1rem' }}>
-        <summary style={{ cursor: 'pointer', color: '#c4b5fd' }}>System prompt</summary>
-        <pre style={{ whiteSpace: 'pre-wrap', background: '#05070d', padding: '1rem', borderRadius: 12, overflowX: 'auto' }}>{ASFDK_AGENT_PROMPT}</pre>
+        <summary style={{ cursor: 'pointer', color: '#8b5cf6' }}>Assistant Persona</summary>
+        <pre style={{ whiteSpace: 'pre-wrap', background: '#05070d', padding: '1rem', borderRadius: 12, color: '#f8fafc', fontSize: '0.85rem', marginTop: '0.5rem' }}>{ASFDK_AGENT_PROMPT}</pre>
       </details>
     </PlaygroundShell>
   );

@@ -1,101 +1,56 @@
 'use client';
 
-import { useState } from 'react';
-
+import React, { useState } from 'react';
 import { PlaygroundShell } from '../../components/PlaygroundShell';
-import { ResultPanel } from '../../components/ResultPanel';
+import { ChatThread, Message } from '../../components/ChatThread';
+import { ChatInput } from '../../components/ChatInput';
 import { getAgent } from '../../lib/agent-registry';
+import { sendAgentMessage } from '../../lib/send-agent-message';
 import { TOI_AGENT_PROMPT } from './prompt';
-
-function splitDocuments(value: string): string[] {
-  return value
-    .split(/\n---\n/g)
-    .map((entry) => entry.trim())
-    .filter(Boolean);
-}
-
-const sampleToiDocument = `{
-  "$toi": "1.0.0",
-  "$tier": "personal",
-  "$id": "123e4567-e89b-42d3-a456-426614174000",
-  "identity": {
-    "author": "Flagship User"
-  },
-  "communication": {
-    "tone": "direct",
-    "verbosity": "concise",
-    "structure": "bullet-points"
-  },
-  "privacy": {
-    "retention": "session-only",
-    "training_use": "prohibited"
-  }
-}`;
 
 export function ToiView() {
   const agent = getAgent('toi')!;
-  const [input, setInput] = useState(sampleToiDocument);
-  const [comparisons, setComparisons] = useState('');
-  const [result, setResult] = useState<unknown>(null);
+  const [messages, setMessages] = useState<Message[]>([
+    { 
+      role: 'assistant', 
+      content: 'Hello! I am the TOI Adoption Agent. Ask me about defining, validating, or refining your Terms of Interaction (TOI) documents.' 
+    }
+  ]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  async function run() {
-    const response = await fetch('/api/agents/toi', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        input,
-        compareTo: splitDocuments(comparisons),
-      }),
-    });
+  async function handleSend(text: string) {
+    const userMsg: Message = { role: 'user', content: text };
+    setMessages(prev => [...prev, userMsg]);
+    setIsLoading(true);
 
-    const payload = (await response.json()) as { deterministic: unknown };
-    setResult(payload.deterministic);
+    try {
+      const newHistory = [...messages, userMsg].map(m => m.content);
+      const data = await sendAgentMessage('toi', text, newHistory);
+      const replyText = data.modelReply?.text ?? JSON.stringify(data.deterministic, null, 2) ?? 'No reply.';
+      setMessages(prev => [...prev, { role: 'assistant', content: replyText }]);
+    } catch (e) {
+      setMessages(prev => [...prev, { role: 'assistant', content: 'Error connecting to agent.' }]);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
     <PlaygroundShell
       title={agent.name}
-      summary="Paste a TOI document, validate it deterministically, inspect the canonical RFC 8785 representation, and optionally resolve it against lower-priority comparison documents."
+      summary="Help users define, validate, and refine consent-based Terms of Interaction."
       packageLabel={`${agent.package}@${agent.version}`}
       sourceRepo={agent.repo}
       inputArea={
-        <div>
-          <label style={{ display: 'block', marginBottom: 8, fontWeight: 700 }}>TOI document</label>
-          <textarea
-            value={input}
-            onChange={(event) => setInput(event.target.value)}
-            spellCheck={false}
-            style={{ width: '100%', minHeight: 260, borderRadius: 16, padding: '1rem', background: '#05070d', color: '#f8fafc', border: '1px solid rgba(139, 92, 246, 0.22)' }}
-          />
-          <label style={{ display: 'block', margin: '1rem 0 0.5rem', fontWeight: 700 }}>
-            Comparison TOI documents (optional, separate with <code>---</code>)
-          </label>
-          <textarea
-            value={comparisons}
-            onChange={(event) => setComparisons(event.target.value)}
-            spellCheck={false}
-            placeholder="Paste comparison TOI JSON documents here"
-            style={{ width: '100%', minHeight: 140, borderRadius: 16, padding: '1rem', background: '#05070d', color: '#f8fafc', border: '1px solid rgba(139, 92, 246, 0.22)' }}
-          />
-          <button
-            onClick={run}
-            style={{ marginTop: '1rem', background: '#8b5cf6', color: '#fff', border: 0, borderRadius: 999, padding: '0.8rem 1.1rem', fontWeight: 700, cursor: 'pointer' }}
-          >
-            Validate TOI
-          </button>
+        <div style={{ display: 'flex', flexDirection: 'column', height: '600px', background: 'white', borderRadius: 16, overflow: 'hidden', border: '1px solid rgba(0,0,0,0.1)' }}>
+          <ChatThread messages={messages} isLoading={isLoading} />
+          <ChatInput onSend={handleSend} isLoading={isLoading} />
         </div>
       }
     >
-      {result ? (
-        <ResultPanel
-          summary={typeof result === 'object' && result !== null && 'summary' in result ? String((result as { summary: string }).summary) : 'TOI response ready.'}
-          error={typeof result === 'object' && result !== null && 'errors' in result ? ((result as { errors?: string[] }).errors?.join('\n') ?? null) : null}
-          data={result}
-        />
-      ) : null}
       <details style={{ marginTop: '1rem' }}>
-        <summary style={{ cursor: 'pointer', color: '#c4b5fd' }}>System prompt</summary>
-        <pre style={{ whiteSpace: 'pre-wrap', background: '#05070d', padding: '1rem', borderRadius: 12, overflowX: 'auto' }}>{TOI_AGENT_PROMPT}</pre>
+        <summary style={{ cursor: 'pointer', color: '#8b5cf6' }}>Assistant Persona</summary>
+        <pre style={{ whiteSpace: 'pre-wrap', background: '#05070d', padding: '1rem', borderRadius: 12, color: '#f8fafc', fontSize: '0.85rem', marginTop: '0.5rem' }}>{TOI_AGENT_PROMPT}</pre>
       </details>
     </PlaygroundShell>
   );
