@@ -106,7 +106,13 @@ export async function POST(
       ? String((deterministic as { summary: string }).summary)
       : 'No summary available.';
 
-  const modelReply = await maybeGenerateModelReply(slug, body.input, deterministicSummary, body.model ?? DEFAULT_MODEL, body.gatewayBaseUrl);
+  const modelReply = await maybeGenerateModelReply(
+    agent.systemPrompt,
+    body.input,
+    deterministicSummary,
+    body.model ?? DEFAULT_MODEL,
+    body.gatewayBaseUrl,
+  );
 
   return Response.json({
     agent: slug,
@@ -138,7 +144,7 @@ function interactionTypeForSlug(slug: string): InteractionType {
 
 /** @internal - model reply generator */
 async function maybeGenerateModelReply(
-  slug: string,
+  systemPrompt: string,
   input: string,
   deterministicSummary: string,
   model: string | undefined,
@@ -147,6 +153,18 @@ async function maybeGenerateModelReply(
   if (!process.env.AI_GATEWAY_API_KEY || !model) {
     return null;
   }
+
+  const hasRealAnalysis =
+    deterministicSummary !== 'No summary available.' &&
+    !deterministicSummary.startsWith('Paste a JSON') &&
+    !deterministicSummary.startsWith('ASFDK-Dev') &&
+    !deterministicSummary.startsWith('ASFDK-Deploy');
+
+  const userMessage = hasRealAnalysis
+    ? `${input}
+
+[Deterministic analysis: ${deterministicSummary}]`
+    : input;
 
   const response = await fetch(`${gatewayBaseUrl ?? 'https://ai-gateway.vercel.sh/v1'}/chat/completions`, {
     method: 'POST',
@@ -157,14 +175,8 @@ async function maybeGenerateModelReply(
     body: JSON.stringify({
       model,
       messages: [
-        {
-          role: 'system',
-          content: `You are assisting the ${slug} SME playground. Build on the deterministic result without contradicting it.`,
-        },
-        {
-          role: 'user',
-          content: `Deterministic summary: ${deterministicSummary}\n\nUser input: ${input}`,
-        },
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userMessage },
       ],
     }),
   });
