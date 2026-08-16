@@ -6,8 +6,8 @@ import React, { useState } from 'react';
  * Props for the ChatInput component.
  * 
  * @typedef {Object} ChatInputProps
- * @property {('user'|'assistant'| undefined)} onSend - Callback fired when the user submits a message
- * @property {boolean} isLoading - Whether the agent is processing (disables input)
+ * @property {(message: string) => void} onSend - Callback fired when the user submits a message
+ * @property {boolean} [isLoading] - Whether the agent is processing (disables input)
  */
 interface ChatInputProps {
   onSend: (message: string) => void;
@@ -56,6 +56,7 @@ export function ChatInput({ onSend, isLoading }: ChatInputProps) {
         value={input}
         onChange={(e) => setInput(e.target.value)}
         placeholder="Type your message..."
+        aria-label="Message"
         style={{ 
           flex: 1, 
           padding: '0.6rem 1rem', 

@@ -6,6 +6,7 @@ import { ChatThread, Message } from '../../components/ChatThread';
 import { ChatInput } from '../../components/ChatInput';
 import { DisclaimerBanner } from '../../components/DisclaimerBanner';
 import { getAgent } from '../../lib/agent-registry';
+import { sendAgentMessage } from '../../lib/send-agent-message';
 import { SDL_AGENT_PROMPT } from './prompt';
 
 export function SdlView() {
@@ -24,18 +25,9 @@ export function SdlView() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/agents/sdl', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ 
-          input: text,
-          history: messages 
-        }),
-      });
-
-      const data = await response.json();
-      const replyText = data.modelReply?.text || JSON.stringify(data.deterministic, null, 2);
-      
+      const newHistory = [...messages, userMsg].map(m => m.content);
+      const data = await sendAgentMessage('sdl', text, newHistory);
+      const replyText = data.modelReply?.text ?? JSON.stringify(data.deterministic, null, 2) ?? 'No reply.';
       setMessages(prev => [...prev, { role: 'assistant', content: replyText }]);
     } catch (e) {
       setMessages(prev => [...prev, { role: 'assistant', content: 'Error connecting to agent.' }]);
@@ -57,7 +49,7 @@ export function SdlView() {
         </div>
       }
     >
-      <DisclaimerBanner>This agent operates under strict governance protocols. Ensure all interactions are logged according to ASFDK standards.</DisclaimerBanner>
+      <DisclaimerBanner>{agent.disclaimer}</DisclaimerBanner>
       <details style={{ marginTop: '1rem' }}>
         <summary style={{ cursor: 'pointer', color: '#8b5cf6' }}>Assistant Persona</summary>
         <pre style={{ whiteSpace: 'pre-wrap', background: '#05070d', padding: '1rem', borderRadius: 12, color: '#f8fafc', fontSize: '0.85rem', marginTop: '0.5rem' }}>{SDL_AGENT_PROMPT}</pre>

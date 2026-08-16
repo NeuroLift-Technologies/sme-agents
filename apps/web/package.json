@@ -12,6 +12,9 @@
     "test": "vitest run",
     "tsc": "tsc --noEmit"
   },
+  "engines": {
+    "node": ">=20"
+  },
   "dependencies": {
     "@a2a-js/sdk": "^1.0.1",
     "@ai-sdk/openai-compatible": "^2.0.0",

@@ -6,6 +6,7 @@ import { ChatThread, Message } from '../../components/ChatThread';
 import { ChatInput } from '../../components/ChatInput';
 import { DisclaimerBanner } from '../../components/DisclaimerBanner';
 import { getAgent } from '../../lib/agent-registry';
+import { sendAgentMessage } from '../../lib/send-agent-message';
 import { OTOI_AGENT_PROMPT } from './prompt';
 
 export function OtoiView() {
@@ -24,18 +25,9 @@ export function OtoiView() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/agents/otoi', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ 
-          input: text,
-          history: messages 
-        }),
-      });
-
-      const data = await response.json();
-      const replyText = data.modelReply?.text || JSON.stringify(data.deterministic, null, 2);
-      
+      const newHistory = [...messages, userMsg].map(m => m.content);
+      const data = await sendAgentMessage('otoi', text, newHistory);
+      const replyText = data.modelReply?.text ?? JSON.stringify(data.deterministic, null, 2) ?? 'No reply.';
       setMessages(prev => [...prev, { role: 'assistant', content: replyText }]);
     } catch (e) {
       setMessages(prev => [...prev, { role: 'assistant', content: 'Error connecting to agent.' }]);

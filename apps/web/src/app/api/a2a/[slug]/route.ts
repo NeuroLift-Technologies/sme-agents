@@ -11,13 +11,14 @@ export async function POST(
     return Response.json({ error: 'Unknown agent slug.' }, { status: 404 });
   }
 
-  const body = await request.json();
-  
+  let body: { id?: unknown } | undefined;
   try {
+    body = await request.json();
+    
     // Simple JSON-RPC response for peer agent communication
     const response = {
       jsonrpc: '2.0',
-      id: body?.id || 1,
+      id: body?.id ?? 1,
       result: {
         agent: slug,
         status: 'received',

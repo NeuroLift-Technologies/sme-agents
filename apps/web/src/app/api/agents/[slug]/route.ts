@@ -4,7 +4,7 @@ import { askAllAgents } from '../../../../agents/asfdk/agent';
 import { assessRrt } from '../../../../agents/rrt/agent';
 import { assessSleepwalker } from '../../../../agents/sleepwalker/agent';
 import { assessSdl } from '../../../../agents/sdl/agent';
-import { getAgent, AgentSlug } from '../../../../lib/agent-registry';
+import { getAgent } from '../../../../lib/agent-registry';
 import { getFoundation } from '../../../../lib/foundation';
 
 interface AgentRequestBody {
@@ -34,13 +34,12 @@ export async function POST(
     return Response.json({ error: 'Unknown agent slug.' }, { status: 404 });
   }
 
-  const slugAgent: AgentSlug = slug as unknown as AgentSlug;
   const body = (await request.json()) as Partial<AgentRequestBody>;
   if (!body.input || typeof body.input !== 'string') {
     return Response.json({ error: 'Request body must include an input string.' }, { status: 400 });
   }
 
-  const foundation = await getFoundation(slugAgent);
+  const foundation = await getFoundation(agent.slug);
   const govResult = await foundation.processInteraction({
     timestamp: new Date(),
     interactionType: 'USER_MESSAGE' as any,
