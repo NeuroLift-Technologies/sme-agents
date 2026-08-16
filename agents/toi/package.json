@@ -4,6 +4,6 @@
   "type": "module",
   "main": "src/index.ts",
   "dependencies": {
-    "@neurolift-technologies/toi": "^1.0.1"
+    "@neurolift-technologies/toi": "^1.0.3"
   }
 }

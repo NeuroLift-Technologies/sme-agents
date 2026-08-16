@@ -1,8 +1,11 @@
 import {
   canonicalize,
+  DEFAULT_DOCUMENT,
+  extractToi,
   resolveToi,
   safeParseToi,
   serializeToi,
+  TOIDocumentGenerator,
   TOI_TIERS
 } from "@neurolift-technologies/toi";
 import {
@@ -16,9 +19,9 @@ const metadata: AgentMetadata = {
   id: "toi-agent",
   name: "TOI SME Agent",
   domain: "interaction-contracts",
-  version: "1.0.1",
-  description: "Explains and validates terms of interaction boundaries.",
-  capabilities: ["toi-validation", "interaction-analysis"]
+  version: "1.0.3",
+  description: "Explains, validates, extracts, and generates terms of interaction documents and boundaries.",
+  capabilities: ["toi-validation", "interaction-analysis", "toi-extraction", "toi-generation"]
 };
 
 const HIGHEST_PRECEDENCE_TIER = TOI_TIERS[TOI_TIERS.length - 1];
@@ -30,9 +33,19 @@ export class TOIAgent extends BaseSMEAgent {
 
   public async process(request: AgentRequest): Promise<AgentResponse> {
     const decisionId = `${this.id}-${request.id}`;
+    const query = request.query.trim();
 
-    if (request.query.trim().length > 0 && request.query.trim().startsWith("{")) {
+    if (query.length > 0 && query.startsWith("{")) {
       return this.validateDocument(request, decisionId);
+    }
+
+    const lower = query.toLowerCase();
+    if (lower.startsWith("extract:")) {
+      return this.extractDocument(request, decisionId, query.slice("extract:".length).trim());
+    }
+
+    if (lower === "generate" || lower === "generate default") {
+      return this.generateDocument(request, decisionId);
     }
 
     const response = "The requested action must comply with explicit interaction terms and user-agent boundaries.";
@@ -46,6 +59,56 @@ export class TOIAgent extends BaseSMEAgent {
     });
 
     return { agentId: this.id, decisionId, response, rationale };
+  }
+
+  private async extractDocument(
+    request: AgentRequest,
+    decisionId: string,
+    naturalLanguage: string
+  ): Promise<AgentResponse> {
+    const result = extractToi(naturalLanguage);
+    if (!result.success) {
+      const response = "Could not extract a valid TOI document from the provided natural-language input.";
+      const rationale = "extractToi could not map the input to a schema-valid .toi document.";
+      this.recordExplanation({ decisionId, agentId: this.id, summary: rationale, evidence: [naturalLanguage] });
+      return { agentId: this.id, decisionId, response, rationale };
+    }
+
+    const document = result.data;
+    const serialized = serializeToi(document);
+
+    const response = `Extracted a TOI document for author "${document.identity.author}" at tier "${document.$tier}" from natural-language input.`;
+    const rationale = "extractToi converts natural-language preferences into a schema-valid .toi document.";
+
+    this.recordExplanation({
+      decisionId,
+      agentId: this.id,
+      summary: rationale,
+      evidence: [naturalLanguage, serialized, "natural-language extraction"]
+    });
+
+    return { agentId: this.id, decisionId, response, rationale, recommendations: [serialized] };
+  }
+
+  private async generateDocument(
+    request: AgentRequest,
+    decisionId: string
+  ): Promise<AgentResponse> {
+    const gen = TOIDocumentGenerator.fromDefaults("anonymous");
+    const document = gen.document;
+    const serialized = serializeToi(document);
+
+    const response = `Generated a default privacy-first TOI document at tier "${document.$tier}" for author "${document.identity.author}".`;
+    const rationale = "TOIDocumentGenerator.fromDefaults() produces a schema-valid, privacy-first .toi document from the canonical defaults.";
+
+    this.recordExplanation({
+      decisionId,
+      agentId: this.id,
+      summary: rationale,
+      evidence: ["default generation", serialized, DEFAULT_DOCUMENT.$tier]
+    });
+
+    return { agentId: this.id, decisionId, response, rationale, recommendations: [serialized] };
   }
 
   private async validateDocument(

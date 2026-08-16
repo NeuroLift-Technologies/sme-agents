@@ -49,10 +49,10 @@ sme-agents/
 
 Each SME agent represents one Solidarity Framework concept using the definition from its source repository.
 
-- **TOI SME Agent**: terms of interaction — the NeuroLift standard for user-controlled, neurodivergent-friendly, privacy-first AI collaboration, expressed as a small, portable, human-editable `.toi` file that states how AI systems should interact with a person.
+- **TOI SME Agent**: terms of interaction — the NeuroLift standard for user-controlled, neurodivergent-friendly, privacy-first AI collaboration, expressed as a small, portable, human-editable `.toi` file that states how AI systems should interact with a person. Validates, extracts from natural language, and generates `.toi` documents.
 - **OTOI SME Agent**: operational/orchestrated terms of interaction — the layer that makes TOI actionable, honoring the user's TOI across single-agent and multi-agent contexts (agents, tools, memory, handoffs, and escalation).
-- **ASFDK SME Agent**: the Agent Solidarity Framework Development Kit — governance and protection middleware that sits between the model and the agent runtime, surfacing TOI, OTOI, RRT Advocate, and Sleepwalker Protocol from a single install.
-- **RRT Advocate SME Agent**: real-time crisis intervention & protective layer — acute crisis detection and immediate safety protocols. Prototype; not medical advice and not a crisis service.
+- **ASFDK SME Agent**: the Agent Solidarity Framework Development Kit — governance and protection middleware that sits between the model and the agent runtime, surfacing TOI, OTOI, RRT Advocate, Sleepwalker Protocol, and prompt-injection defense from a single install.
+- **RRT Advocate SME Agent**: real-time crisis detection and human-first intervention layer — acute crisis assessment for burnout, overwhelm, shutdown, and safety escalation. Prototype; not medical advice and not a crisis service.
 - **Sleepwalker Protocol SME Agent**: emotional continuity governance — governs sustained emotional safety across extended timeframes so AI systems do not "wake up" users who are emotionally sleepwalking without consent and support structures.
 - **State Detection Layer SME Agent**: a conservative, fail-closed state detector that reads a turn before the host calls the model and emits a routing decision — how to respond, whether to surface human support, whether to escalate. A safety-critical routing net, not a clinical or diagnostic tool.
 
