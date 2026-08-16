@@ -60,6 +60,16 @@ function extractErrors(result: SafeParseResult): string[] {
 }
 
 export function analyzeToi(input: string, comparisonInputs: string[] = []): ToiRunResult {
+  const trimmed = input.trim();
+  if (!trimmed.startsWith('{') && !trimmed.startsWith('[')) {
+    return {
+      ok: true,
+      summary:
+        'Paste a JSON TOI document to validate it, or use the sample below to get started.',
+      comparisonCount: 0,
+    };
+  }
+
   const parsed = safeParseToi(input);
   if (!parsed.success) {
     return {
